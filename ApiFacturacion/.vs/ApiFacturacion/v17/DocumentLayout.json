@@ -1,0 +1,75 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|c:\\users\\luisa\\documents\\mis documentos\\proyectos\\sistema-control-pacientes\\apifacturacion\\apifacturacion\\controllers\\doceleccontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|solutionrelative:apifacturacion\\controllers\\doceleccontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|c:\\users\\luisa\\documents\\mis documentos\\proyectos\\sistema-control-pacientes\\apifacturacion\\apifacturacion\\service\\facturacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|solutionrelative:apifacturacion\\service\\facturacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 165,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "FacturacionService.cs",
+              "DocumentMoniker": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Service\\FacturacionService.cs",
+              "RelativeDocumentMoniker": "ApiFacturacion\\Service\\FacturacionService.cs",
+              "ToolTip": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Service\\FacturacionService.cs",
+              "RelativeToolTip": "ApiFacturacion\\Service\\FacturacionService.cs",
+              "ViewState": "AgIAAJ4BAAAAAAAAAAAAAAECAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-09T20:13:18.904Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{6324226f-61b6-4f28-92ee-18d4b5fe1e48}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:14:0:{2456bd12-ecf7-4988-a4a6-67d49173f565}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DocElecController.cs",
+              "DocumentMoniker": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Controllers\\DocElecController.cs",
+              "RelativeDocumentMoniker": "ApiFacturacion\\Controllers\\DocElecController.cs",
+              "ToolTip": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Controllers\\DocElecController.cs",
+              "RelativeToolTip": "ApiFacturacion\\Controllers\\DocElecController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYCAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-22T02:58:38.137Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

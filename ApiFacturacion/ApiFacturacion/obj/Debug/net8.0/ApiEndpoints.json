@@ -1,0 +1,214 @@
+[
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "actualizarEmpresa",
+    "RelativePath": "api/DocElec/actualizarEmpresa",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "ApiFacturacion.Modelos.DTOEmpresaRegistroDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "Delete",
+    "RelativePath": "api/DocElec/Delete{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "EnviarComprobanteAsync2",
+    "RelativePath": "api/DocElec/enviar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "ApiFacturacion.Modelos.ValidarComprobanteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [],
+    "EndpointName": "EnviarComprobante"
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "GetById",
+    "RelativePath": "api/DocElec/FacturasById {id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "GetAll",
+    "RelativePath": "api/DocElec/ListarFacturas",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "ObtenerEmpresaPorRucAsync",
+    "RelativePath": "api/DocElec/ObtenerEmpresa",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "idaplicacion",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "idempresa",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "idPersona",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "RegistrarEmpresa",
+    "RelativePath": "api/DocElec/registrar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "ApiFacturacion.Modelos.DTOEmpresaRegistroDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "Create",
+    "RelativePath": "api/DocElec/RegistrarFactura",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "factura",
+        "Type": "ApiFacturacion.Models.FactFactura",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "Update",
+    "RelativePath": "api/DocElec/Update{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "factura",
+        "Type": "ApiFacturacion.Models.FactFactura",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.DocElecController",
+    "Method": "ValidarManualmente",
+    "RelativePath": "api/DocElec/ValidarManualmente",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "claveAcceso",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [],
+    "EndpointName": "ValidarManualmente"
+  },
+  {
+    "ContainingType": "ApiFacturacion.Controllers.PdfController",
+    "Method": "SignPdfs",
+    "RelativePath": "api/Pdf/firmar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "pdfFiles",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "p12File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "password",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "x",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "y",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

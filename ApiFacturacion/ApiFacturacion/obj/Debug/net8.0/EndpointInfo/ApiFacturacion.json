@@ -1,0 +1,1406 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "ApiFacturacion",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/DocElec/enviar": {
+      "post": {
+        "tags": [
+          "DocElec"
+        ],
+        "operationId": "EnviarComprobante",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarComprobanteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarComprobanteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarComprobanteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/ValidarManualmente": {
+      "post": {
+        "tags": [
+          "DocElec"
+        ],
+        "operationId": "ValidarManualmente",
+        "parameters": [
+          {
+            "name": "claveAcceso",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/registrar": {
+      "post": {
+        "tags": [
+          "DocElec"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEmpresaRegistroDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEmpresaRegistroDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEmpresaRegistroDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/actualizarEmpresa": {
+      "post": {
+        "tags": [
+          "DocElec"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEmpresaRegistroDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEmpresaRegistroDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEmpresaRegistroDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/ObtenerEmpresa": {
+      "post": {
+        "tags": [
+          "DocElec"
+        ],
+        "parameters": [
+          {
+            "name": "idaplicacion",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "idempresa",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "idPersona",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/ListarFacturas": {
+      "get": {
+        "tags": [
+          "DocElec"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/FacturasById {id}": {
+      "get": {
+        "tags": [
+          "DocElec"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/RegistrarFactura": {
+      "post": {
+        "tags": [
+          "DocElec"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactFactura"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactFactura"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactFactura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/Update{id}": {
+      "put": {
+        "tags": [
+          "DocElec"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactFactura"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactFactura"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactFactura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/DocElec/Delete{id}": {
+      "delete": {
+        "tags": [
+          "DocElec"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Pdf/firmar": {
+      "post": {
+        "tags": [
+          "Pdf"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pdfFiles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "p12File": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "x": {
+                    "type": "string"
+                  },
+                  "y": {
+                    "type": "string"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "encoding": {
+                "pdfFiles": {
+                  "style": "form"
+                },
+                "p12File": {
+                  "style": "form"
+                },
+                "password": {
+                  "style": "form"
+                },
+                "x": {
+                  "style": "form"
+                },
+                "y": {
+                  "style": "form"
+                },
+                "page": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CampoAdicional": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DTOEmpresaRegistroDto": {
+        "type": "object",
+        "properties": {
+          "razonSocial": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreComercial": {
+            "type": "string",
+            "nullable": true
+          },
+          "ruc": {
+            "type": "string",
+            "nullable": true
+          },
+          "dirMatriz": {
+            "type": "string",
+            "nullable": true
+          },
+          "obligadoContabilidad": {
+            "type": "string",
+            "nullable": true
+          },
+          "contribuyenteEspecial": {
+            "type": "string",
+            "nullable": true
+          },
+          "regimenMicroempresa": {
+            "type": "string",
+            "nullable": true
+          },
+          "firmaDigital": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_empresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_aplicacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_persona": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "establecimientos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DTOEstablecimientoDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DTOEstablecimientoDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "direccion": {
+            "type": "string",
+            "nullable": true
+          },
+          "puntosEmision": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DTOPuntoEmisionDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DTOPuntoEmisionDto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "secuencial": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DateOnly": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "day": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dayOfWeek": {
+            "$ref": "#/components/schemas/DayOfWeek"
+          },
+          "dayOfYear": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "dayNumber": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DayOfWeek": {
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "type": "integer",
+        "format": "int32"
+      },
+      "Detalle": {
+        "type": "object",
+        "properties": {
+          "codigoPrincipal": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoAuxiliar": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double"
+          },
+          "precioUnitario": {
+            "type": "number",
+            "format": "double"
+          },
+          "descuento": {
+            "type": "number",
+            "format": "double"
+          },
+          "precioTotalSinImpuesto": {
+            "type": "number",
+            "format": "double"
+          },
+          "impuestos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImpuestoDetalle"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactEmpresa": {
+        "type": "object",
+        "properties": {
+          "idfactempresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "razonSocial": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreComercial": {
+            "type": "string",
+            "nullable": true
+          },
+          "ruc": {
+            "type": "string",
+            "nullable": true
+          },
+          "dirMatriz": {
+            "type": "string",
+            "nullable": true
+          },
+          "obligadoContabilidad": {
+            "type": "string",
+            "nullable": true
+          },
+          "contribuyenteEspecial": {
+            "type": "string",
+            "nullable": true
+          },
+          "regimenMicroempresa": {
+            "type": "string",
+            "nullable": true
+          },
+          "firmaDigital": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "idEmpresa": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "idAplicacion": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "idPersona": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true
+          },
+          "factEstablecimientos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactEstablecimiento"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactEstablecimiento": {
+        "type": "object",
+        "properties": {
+          "idfactestablecimiento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "empresaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "direccion": {
+            "type": "string",
+            "nullable": true
+          },
+          "empresa": {
+            "$ref": "#/components/schemas/FactEmpresa"
+          },
+          "factPuntoEmisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactPuntoEmision"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactFactura": {
+        "type": "object",
+        "properties": {
+          "idfactfactura": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "puntoEmisionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "facturaId": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoEmision": {
+            "type": "string",
+            "nullable": true
+          },
+          "claveAcceso": {
+            "type": "string",
+            "nullable": true
+          },
+          "codDoc": {
+            "type": "string",
+            "nullable": true
+          },
+          "secuencial": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaEmision": {
+            "$ref": "#/components/schemas/DateOnly"
+          },
+          "razonSocialComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoIdentificacionComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificacionComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "direccionComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalSinImpuestos": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "totalDescuento": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "propina": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "importeTotal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "moneda": {
+            "type": "string",
+            "nullable": true
+          },
+          "ambiente": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "factFacturaDetalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactFacturaDetalle"
+            },
+            "nullable": true
+          },
+          "factFacturaInfoAdicionals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactFacturaInfoAdicional"
+            },
+            "nullable": true
+          },
+          "factFacturaPagos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactFacturaPago"
+            },
+            "nullable": true
+          },
+          "factFacturaPdf": {
+            "$ref": "#/components/schemas/FactFacturaPdf"
+          },
+          "factFacturaTotalImpuestos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactFacturaTotalImpuesto"
+            },
+            "nullable": true
+          },
+          "factFacturaXml": {
+            "$ref": "#/components/schemas/FactFacturaXml"
+          },
+          "puntoEmision": {
+            "$ref": "#/components/schemas/FactPuntoEmision"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactFacturaDetalle": {
+        "type": "object",
+        "properties": {
+          "idfactfacturadetalle": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "facturaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigoPrincipal": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoAuxiliar": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "precioUnitario": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "descuento": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "precioTotalSinImpuesto": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "factura": {
+            "$ref": "#/components/schemas/FactFactura"
+          },
+          "facturaDetalleImpuestos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacturaDetalleImpuesto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactFacturaInfoAdicional": {
+        "type": "object",
+        "properties": {
+          "idfactfacturainfoadicional": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "facturaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "string",
+            "nullable": true
+          },
+          "factura": {
+            "$ref": "#/components/schemas/FactFactura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactFacturaPago": {
+        "type": "object",
+        "properties": {
+          "idfactfacturapago": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "facturaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "formaPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "plazo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "unidadTiempo": {
+            "type": "string",
+            "nullable": true
+          },
+          "factura": {
+            "$ref": "#/components/schemas/FactFactura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactFacturaPdf": {
+        "type": "object",
+        "properties": {
+          "idfactfacturapdf": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "facturaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pdf": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "factura": {
+            "$ref": "#/components/schemas/FactFactura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactFacturaTotalImpuesto": {
+        "type": "object",
+        "properties": {
+          "idfactfacturatotalimpuesto": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "facturaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPorcentaje": {
+            "type": "string",
+            "nullable": true
+          },
+          "descuentoAdicional": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "baseImponible": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "factura": {
+            "$ref": "#/components/schemas/FactFactura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactFacturaXml": {
+        "type": "object",
+        "properties": {
+          "idfactfacturaxml": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "facturaId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "xmlFirmado": {
+            "type": "string",
+            "nullable": true
+          },
+          "xmlAutorizado": {
+            "type": "string",
+            "nullable": true
+          },
+          "numeroAutorizacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaAutorizacion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "estadoAutorizacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "mensajeAutorizacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "factura": {
+            "$ref": "#/components/schemas/FactFactura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FactPuntoEmision": {
+        "type": "object",
+        "properties": {
+          "idfactpuntoemision": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "establecimientoId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "secuencialActual": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "establecimiento": {
+            "$ref": "#/components/schemas/FactEstablecimiento"
+          },
+          "factFacturas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FactFactura"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Factura": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "infoTributaria": {
+            "$ref": "#/components/schemas/InfoTributaria"
+          },
+          "infoFactura": {
+            "$ref": "#/components/schemas/InfoFactura"
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Detalle"
+            },
+            "nullable": true
+          },
+          "infoAdicional": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CampoAdicional"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FacturaDetalleImpuesto": {
+        "type": "object",
+        "properties": {
+          "idfacturadetalleimpuesto": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detalleId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPorcentaje": {
+            "type": "string",
+            "nullable": true
+          },
+          "tarifa": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "baseImponible": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "detalle": {
+            "$ref": "#/components/schemas/FactFacturaDetalle"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImpuestoDetalle": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPorcentaje": {
+            "type": "string",
+            "nullable": true
+          },
+          "tarifa": {
+            "type": "string",
+            "nullable": true
+          },
+          "baseImponible": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InfoDelCliente": {
+        "type": "object",
+        "properties": {
+          "fechaEmision": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoComprobante": {
+            "type": "string",
+            "nullable": true
+          },
+          "ruc": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoAmbiente": {
+            "type": "string",
+            "nullable": true
+          },
+          "serie": {
+            "type": "string",
+            "nullable": true
+          },
+          "secuencial": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoNumerico": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoEmision": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "id_aplicacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_empresa": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id_persona": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "contrasenaFirma": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InfoFactura": {
+        "type": "object",
+        "properties": {
+          "fechaEmision": {
+            "type": "string",
+            "nullable": true
+          },
+          "dirEstablecimiento": {
+            "type": "string",
+            "nullable": true
+          },
+          "contribuyenteEspecial": {
+            "type": "string",
+            "nullable": true
+          },
+          "obligadoContabilidad": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoIdentificacionComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "razonSocialComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificacionComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "direccionComprador": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalSinImpuestos": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalDescuento": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalConImpuestos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TotalImpuesto"
+            },
+            "nullable": true
+          },
+          "propina": {
+            "type": "string",
+            "nullable": true
+          },
+          "importeTotal": {
+            "type": "string",
+            "nullable": true
+          },
+          "moneda": {
+            "type": "string",
+            "nullable": true
+          },
+          "pagos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pago"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InfoTributaria": {
+        "type": "object",
+        "properties": {
+          "ambiente": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoEmision": {
+            "type": "string",
+            "nullable": true
+          },
+          "razonSocial": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreComercial": {
+            "type": "string",
+            "nullable": true
+          },
+          "ruc": {
+            "type": "string",
+            "nullable": true
+          },
+          "claveAcceso": {
+            "type": "string",
+            "nullable": true
+          },
+          "codDoc": {
+            "type": "string",
+            "nullable": true
+          },
+          "estab": {
+            "type": "string",
+            "nullable": true
+          },
+          "ptoEmi": {
+            "type": "string",
+            "nullable": true
+          },
+          "secuencial": {
+            "type": "string",
+            "nullable": true
+          },
+          "dirMatriz": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Pago": {
+        "type": "object",
+        "properties": {
+          "formaPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "total": {
+            "type": "string",
+            "nullable": true
+          },
+          "plazo": {
+            "type": "string",
+            "nullable": true
+          },
+          "unidadTiempo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TotalImpuesto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPorcentaje": {
+            "type": "string",
+            "nullable": true
+          },
+          "descuentoAdicional": {
+            "type": "string",
+            "nullable": true
+          },
+          "baseImponible": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidarComprobanteRequest": {
+        "type": "object",
+        "properties": {
+          "info": {
+            "$ref": "#/components/schemas/InfoDelCliente"
+          },
+          "factura": {
+            "$ref": "#/components/schemas/Factura"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
