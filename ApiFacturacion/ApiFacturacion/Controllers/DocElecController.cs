@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
+using System.Collections.Generic;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using SRI.Recepcion;
@@ -60,6 +61,19 @@ namespace ApiFacturacion.Controllers
             else if (verificador == 10) verificador = 1;
 
             return clave48 + verificador.ToString();
+        }
+
+        private static string? SerializarRespuestaRecepcion(respuestaSolicitud? respuesta)
+        {
+            if (respuesta == null)
+            {
+                return null;
+            }
+
+            var serializer = new XmlSerializer(typeof(respuestaSolicitud));
+            using var sw = new StringWriter(CultureInfo.InvariantCulture);
+            serializer.Serialize(sw, respuesta);
+            return sw.ToString();
         }
         [HttpPost("FirmarXmlXades", Name = "FirmarXmlXades")]
         public static void FirmarXmlXades(string xmlEntrada, string xmlSalida, byte[] rutaCertificado, string claveCert)
@@ -176,10 +190,44 @@ namespace ApiFacturacion.Controllers
                 xmlBytes
             );
 
-            var estadoRecepcion =
-                 responseRecepcion.RespuestaRecepcionComprobante.estado;
+            if (responseRecepcion?.RespuestaRecepcionComprobante == null)
+            {
+                return BadRequest(new {
+                    estado = (string?)null,
+                    errores = new[] {
+                        new {
+                            identificador = "RECEPCION_NULA",
+                            mensaje = "RespuestaRecepcionComprobante es null.",
+                            tipo = "ERROR",
+                            informacionAdicional = "Verifica el servicio de recepción y la configuración del endpoint."
+                        }
+                    },
+                    xmlSinFirmar = xmlString,
+                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
+                });
+            }
 
-            if (estadoRecepcion != "RECIBIDA")
+            var estadoRecepcion =
+                 responseRecepcion.RespuestaRecepcionComprobante.estado?.Trim();
+
+            if (string.IsNullOrWhiteSpace(estadoRecepcion))
+            {
+                return BadRequest(new {
+                    estado = estadoRecepcion,
+                    errores = new[] {
+                        new {
+                            identificador = "ESTADO_VACIO",
+                            mensaje = "El estado de recepción llegó vacío o nulo.",
+                            tipo = "ERROR",
+                            informacionAdicional = "Revisa el payload enviado y la respuesta del SRI."
+                        }
+                    },
+                    xmlSinFirmar = xmlString,
+                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
+                });
+            }
+
+            if (!string.Equals(estadoRecepcion, "RECIBIDA", StringComparison.OrdinalIgnoreCase))
             {
                 var mensajes = responseRecepcion
                     .RespuestaRecepcionComprobante
@@ -187,13 +235,32 @@ namespace ApiFacturacion.Controllers
                     .FirstOrDefault()?
                     .mensajes;
 
-                return BadRequest(new {
-                    estado = estadoRecepcion,
-                    errores = mensajes?.Select(m => new {
+                var errores = mensajes?
+                    .Select(m => new {
                         m.identificador,
+                        mensaje = m.mensaje1,
+                        m.tipo,
                         estadoRecepcion,
                         m.informacionAdicional
-                    }),
+                    })
+                    .ToList();
+
+                if (errores == null || errores.Count == 0)
+                {
+                    errores = new List<object> {
+                        new {
+                            identificador = "SIN_MENSAJES",
+                            mensaje = "El SRI devolvió DEVUELTA sin detalle de mensajes.",
+                            tipo = "ERROR",
+                            informacionAdicional = "Revisa el XML firmado y la configuración del ambiente/endpoint."
+                        }
+                    };
+                }
+
+                return BadRequest(new {
+                    estado = estadoRecepcion,
+                    errores,
+                    respuestaRecepcionXml = SerializarRespuestaRecepcion(responseRecepcion.RespuestaRecepcionComprobante),
                     xmlSinFirmar = xmlString,
                     xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
                 });
@@ -222,6 +289,22 @@ namespace ApiFacturacion.Controllers
 
 
             string resultXml = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(resultXml))
+            {
+                return BadRequest(new {
+                    estado = "AUTORIZACION_SIN_RESPUESTA",
+                    errores = new[] {
+                        new {
+                            identificador = "AUTORIZACION_HTTP",
+                            mensaje = "La respuesta de autorización fue vacía o no exitosa.",
+                            tipo = "ERROR",
+                            informacionAdicional = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}"
+                        }
+                    },
+                    xmlSinFirmar = xmlString,
+                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
+                });
+            }
 
             var sri = SriSoapParser.ParseAutorizacionSri(resultXml);
             if (sri == null)
@@ -702,6 +785,3 @@ public class Utf8StringWriter : StringWriter
 {
     public override Encoding Encoding => Encoding.UTF8;
 }
-
-
-
