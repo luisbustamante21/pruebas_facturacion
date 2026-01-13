@@ -7,8 +7,16 @@
       "RelativeMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|solutionrelative:apifacturacion\\controllers\\doceleccontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|c:\\users\\luisa\\documents\\mis documentos\\proyectos\\sistema-control-pacientes\\apifacturacion\\apifacturacion\\interface\\ifacturacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|solutionrelative:apifacturacion\\interface\\ifacturacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|c:\\users\\luisa\\documents\\mis documentos\\proyectos\\sistema-control-pacientes\\apifacturacion\\apifacturacion\\service\\facturacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|solutionrelative:apifacturacion\\service\\facturacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|c:\\users\\luisa\\documents\\mis documentos\\proyectos\\sistema-control-pacientes\\apifacturacion\\apifacturacion\\modelos\\factuarionelectronica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0532B88A-C7A9-4130-8773-7DF3A9A40AB7}|ApiFacturacion\\ApiFacturacion.csproj|solutionrelative:apifacturacion\\modelos\\factuarionelectronica.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -21,23 +29,6 @@
           "SelectedChildIndex": 5,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FacturacionService.cs",
-              "DocumentMoniker": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Service\\FacturacionService.cs",
-              "RelativeDocumentMoniker": "ApiFacturacion\\Service\\FacturacionService.cs",
-              "ToolTip": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Service\\FacturacionService.cs",
-              "RelativeToolTip": "ApiFacturacion\\Service\\FacturacionService.cs",
-              "ViewState": "AgIAAJ4BAAAAAAAAAAAAAAECAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-09T20:13:18.904Z",
-              "IsPinned": true
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
@@ -46,8 +37,43 @@
               "Name": "ST:0:0:{6324226f-61b6-4f28-92ee-18d4b5fe1e48}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:14:0:{2456bd12-ecf7-4988-a4a6-67d49173f565}"
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FacturacionService.cs",
+              "DocumentMoniker": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Service\\FacturacionService.cs",
+              "RelativeDocumentMoniker": "ApiFacturacion\\Service\\FacturacionService.cs",
+              "ToolTip": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Service\\FacturacionService.cs",
+              "RelativeToolTip": "ApiFacturacion\\Service\\FacturacionService.cs",
+              "ViewState": "AgIAAKABAAAAAAAAAAAIwLMBAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-13T03:01:59.557Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IFacturacionService.cs",
+              "DocumentMoniker": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Interface\\IFacturacionService.cs",
+              "RelativeDocumentMoniker": "ApiFacturacion\\Interface\\IFacturacionService.cs",
+              "ToolTip": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Interface\\IFacturacionService.cs",
+              "RelativeToolTip": "ApiFacturacion\\Interface\\IFacturacionService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAsAAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-13T02:59:14.367Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FactuarionElectronica.cs",
+              "DocumentMoniker": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Modelos\\FactuarionElectronica.cs",
+              "RelativeDocumentMoniker": "ApiFacturacion\\Modelos\\FactuarionElectronica.cs",
+              "ToolTip": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Modelos\\FactuarionElectronica.cs",
+              "RelativeToolTip": "ApiFacturacion\\Modelos\\FactuarionElectronica.cs",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAcwKYAAABbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-12T14:38:01.475Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -57,14 +83,10 @@
               "RelativeDocumentMoniker": "ApiFacturacion\\Controllers\\DocElecController.cs",
               "ToolTip": "C:\\Users\\luisa\\Documents\\Mis Documentos\\Proyectos\\sistema-control-pacientes\\ApiFacturacion\\ApiFacturacion\\Controllers\\DocElecController.cs",
               "RelativeToolTip": "ApiFacturacion\\Controllers\\DocElecController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYCAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAA8CAAAAAAAAAAAowCYCAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-22T02:58:38.137Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             }
           ]
         }

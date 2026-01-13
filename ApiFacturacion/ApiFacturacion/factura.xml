@@ -1,44 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<factura xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="comprobante" version="1.1.0">
+<factura xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="comprobante" version="1.0.0">
   <infoTributaria>
     <ambiente>1</ambiente>
     <tipoEmision>1</tipoEmision>
     <razonSocial>Roger Baldeon</razonSocial>
     <nombreComercial>htecnology</nombreComercial>
     <ruc>0705227130001</ruc>
-    <claveAcceso>1101202601070522713000110010010000000611234567812</claveAcceso>
+    <claveAcceso>1201202601070522713000110010010000001201234567817</claveAcceso>
     <codDoc>01</codDoc>
     <estab>001</estab>
     <ptoEmi>001</ptoEmi>
-    <secuencial>000000061</secuencial>
+    <secuencial>000000120</secuencial>
     <dirMatriz>Huaquillas</dirMatriz>
   </infoTributaria>
   <infoFactura>
-    <fechaEmision>11/01/2026</fechaEmision>
+    <fechaEmision>12/01/2026</fechaEmision>
     <dirEstablecimiento>Guayaquil</dirEstablecimiento>
     <obligadoContabilidad>NO</obligadoContabilidad>
     <tipoIdentificacionComprador>05</tipoIdentificacionComprador>
     <razonSocialComprador>JUANITO ALIMAÑA</razonSocialComprador>
     <identificacionComprador>0705227130</identificacionComprador>
-    <direccionComprador>loja</direccionComprador>
-    <totalSinImpuestos>400.00</totalSinImpuestos>
+    <direccionComprador>Av 24 de Mayo</direccionComprador>
+    <totalSinImpuestos>8.00</totalSinImpuestos>
     <totalDescuento>0.00</totalDescuento>
     <totalConImpuestos>
       <totalImpuesto>
         <codigo>2</codigo>
         <codigoPorcentaje>4</codigoPorcentaje>
-        <tarifa>0.00</tarifa>
-        <baseImponible>400.00</baseImponible>
-        <valor>60.00</valor>
+        <descuentoAdicional>0.00</descuentoAdicional>
+        <baseImponible>8.00</baseImponible>
+        <valor>1.20</valor>
       </totalImpuesto>
     </totalConImpuestos>
     <propina>0.00</propina>
-    <importeTotal>460.00</importeTotal>
+    <importeTotal>9.20</importeTotal>
     <moneda>DOLAR</moneda>
     <pagos>
       <pago>
         <formaPago>01</formaPago>
-        <total>460.00</total>
+        <total>9.20</total>
         <plazo>0</plazo>
         <unidadTiempo>dias</unidadTiempo>
       </pago>
@@ -46,26 +46,26 @@
   </infoFactura>
   <detalles>
     <detalle>
-      <codigoPrincipal>cit</codigoPrincipal>
-      <codigoAuxiliar>cit</codigoAuxiliar>
-      <descripcion>cita general</descripcion>
-      <cantidad>400.00</cantidad>
-      <precioUnitario>20.00</precioUnitario>
+      <codigoPrincipal>SER-002</codigoPrincipal>
+      <codigoAuxiliar>SER-002</codigoAuxiliar>
+      <descripcion>Toma y evaluación de signos vitales</descripcion>
+      <cantidad>1.00</cantidad>
+      <precioUnitario>8.00</precioUnitario>
       <descuento>0.00</descuento>
-      <precioTotalSinImpuesto>400.00</precioTotalSinImpuesto>
+      <precioTotalSinImpuesto>8.00</precioTotalSinImpuesto>
       <impuestos>
         <impuesto>
           <codigo>2</codigo>
           <codigoPorcentaje>4</codigoPorcentaje>
           <tarifa>15.00</tarifa>
-          <baseImponible>400.00</baseImponible>
-          <valor>60.00</valor>
+          <baseImponible>8.00</baseImponible>
+          <valor>1.20</valor>
         </impuesto>
       </impuestos>
     </detalle>
   </detalles>
   <infoAdicional>
-    <campoAdicional nombre="Email">paciente1@mail.com</campoAdicional>
-    <campoAdicional nombre="Telefono">593968326783</campoAdicional>
+    <campoAdicional nombre="Email">luis.bustamante@gmail.com</campoAdicional>
+    <campoAdicional nombre="Telefono">0909999999</campoAdicional>
   </infoAdicional>
 </factura>

@@ -158,13 +158,13 @@ namespace ApiFacturacion.Modelos
         public string CodigoPorcentaje { get; set; }
 
         [XmlIgnore]
-        public decimal Tarifa { get; set; }
+        //public decimal Tarifa { get; set; }
+        public decimal DescuentoAdicional { get; set; }
 
-        [XmlElement("tarifa")]
-        public string TarifaXml
-        {
-            get => Tarifa.ToString("0.00", CultureInfo.InvariantCulture);
-            set => Tarifa = decimal.Parse(value, CultureInfo.InvariantCulture);
+        [XmlElement("descuentoAdicional")]
+        public string DescuentoAdicionalXml {
+            get => DescuentoAdicional.ToString("0.00", CultureInfo.InvariantCulture);
+            set => DescuentoAdicional = decimal.Parse(value, CultureInfo.InvariantCulture);
         }
 
         [XmlIgnore]

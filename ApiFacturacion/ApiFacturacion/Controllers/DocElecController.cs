@@ -71,8 +71,8 @@ namespace ApiFacturacion.Controllers
 
             var parametros = new SignatureParameters
             {
-                SignatureMethod = SignatureMethod.RSAwithSHA1, // <- Cambio a SHA1
-                DigestMethod = DigestMethod.SHA1,             // <- Cambio a SHA1
+                SignatureMethod = SignatureMethod.RSAwithSHA1, 
+                DigestMethod = DigestMethod.SHA1,             
                 SigningDate = DateTime.UtcNow,
                 SignaturePackaging = SignaturePackaging.ENVELOPED,
                 Signer = new Signer(cert)
@@ -143,6 +143,9 @@ namespace ApiFacturacion.Controllers
             factura.InfoTributaria.Estab = datosEmpresaConsulta.FactEstablecimientos.FirstOrDefault().Codigo;
             factura.InfoTributaria.PtoEmi = datosEmpresaConsulta.FactEstablecimientos.FirstOrDefault().FactPuntoEmisions.FirstOrDefault().Codigo;
             factura.InfoFactura.FechaEmision = DateTime.Now.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            if (string.IsNullOrWhiteSpace(factura.InfoFactura.DireccionComprador)) {
+                factura.InfoFactura.DireccionComprador = null;
+            }
 
             factura = CalcularFactura(factura);
             // 3. Serializar a XML UTF-8 sin BOM
@@ -184,31 +187,18 @@ namespace ApiFacturacion.Controllers
                     .FirstOrDefault()?
                     .mensajes;
 
-                //return BadRequest(new
-                //{
-                //    estado = estadoRecepcion,
-                //    errores = mensajes?.Select(m => new
-                //    {
-                //        m.identificador,
-                //        estadoRecepcion,
-                //        m.informacionAdicional
-                //    })
-                //});
+                return BadRequest(new {
+                    estado = estadoRecepcion,
+                    errores = mensajes?.Select(m => new {
+                        m.identificador,
+                        estadoRecepcion,
+                        m.informacionAdicional
+                    }),
+                    xmlSinFirmar = xmlString,
+                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
+                });
             }
 
-
-            //foreach (var comp in responseRecepcion.RespuestaRecepcionComprobante.comprobantes)
-            //{
-            //    Console.WriteLine($"Estado Recepción: {comp}");
-            //    if (comp.mensajes != null)
-            //    {
-            //        foreach (var msg in comp.mensajes)
-            //        {
-            //            Console.WriteLine($"Mensaje: {msg}");
-            //            Console.WriteLine($"Adicional: {msg.informacionAdicional}");
-            //        }
-            //    }
-            //}
             #endregion
 
             #region validar factura
@@ -233,59 +223,37 @@ namespace ApiFacturacion.Controllers
 
             string resultXml = await response.Content.ReadAsStringAsync();
 
+            var sri = SriSoapParser.ParseAutorizacionSri(resultXml);
+            if (sri == null)
+                return BadRequest("No existe nodo <autorizacion> en la respuesta del SRI.");
 
-            var doc = XDocument.Parse(resultXml);
+            var estado = sri.Estado;
 
-            XNamespace ns = "http://ec.gob.sri.ws.autorizacion";
+            if (string.Equals(estado, "AUTORIZADO", StringComparison.OrdinalIgnoreCase)) {
+                // OK: aprobado
+                var numeroAut = sri.NumeroAutorizacion;
+                var fechaAut = sri.FechaAutorizacion;
+                var ambiente = sri.Ambiente;
 
-            var autorizacion = doc
-                .Descendants(ns + "autorizacion")
-                .FirstOrDefault();
+                // si quieres el XML del comprobante ya decodificado:
+                var xmlFacturaAutorizada = sri.ComprobanteXml;
 
-            if (autorizacion == null)
-            {
-                //return BadRequest("No existe respuesta de autorización");
+                // aquí continúas tu flujo
+            } else {
+                // NO autorizado / DEVUELTA / etc.
+                return BadRequest(new {
+                    estado = sri.Estado,
+                    numeroAutorizacion = sri.NumeroAutorizacion,
+                    fechaAutorizacion = sri.FechaAutorizacion,
+                    ambiente = sri.Ambiente,
+                    errores = sri.Mensajes
+                });
             }
-
-            var estado = autorizacion.Element(ns + "estado")?.Value;
-
-            if (estado == "AUTORIZADO")
-            {
-                var numeroAutorizacion =
-                    autorizacion.Element(ns + "numeroAutorizacion")?.Value;
-
-                var fechaAutorizacion =
-                    autorizacion.Element(ns + "fechaAutorizacion")?.Value;
-
-                // 👉 AQUÍ tu factura fue aprobada
-            }
-            else
-            {
-                var mensajes = autorizacion
-                    .Descendants(ns + "mensaje")
-                    .Select(m => new
-                    {
-                        Identificador = m.Element(ns + "identificador")?.Value,
-                        Mensaje = m.Element(ns + "mensaje")?.Value,
-                        InformacionAdicional = m.Element(ns + "informacionAdicional")?.Value,
-                        Tipo = m.Element(ns + "tipo")?.Value
-                    })
-                    .ToList();
-
-                //return BadRequest(new
-                //{
-                //    estado,
-                //    errores = mensajes
-                //});
-            }
-
-
 
             #endregion
 
             #region Guardar Factura
-            try
-            {
+            try {
                 FactFactura factFactura = new FactFactura
                 {
                     ClaveAcceso = factura.InfoTributaria.ClaveAcceso,
@@ -316,7 +284,7 @@ namespace ApiFacturacion.Controllers
                 var nueva = await _empresaService.CrearFacturaAsync(facturaEntity);
                 //await _emailservice.SendEmailAsync("roger.baldeonc@gmail.com", "estoy probando", "Hola mundo factura de:");
                 var emailDestino = factura?.InfoAdicional?.FirstOrDefault(x => (x?.Nombre ?? "").Trim().Equals("Email", StringComparison.OrdinalIgnoreCase))?.Valor?.Trim();
-                emailDestino = "roger.baldeonc@gmail.com";
+                emailDestino = "luis.bustamante141@gmail.com";
                 if (!string.IsNullOrWhiteSpace(emailDestino))
                 {
                     string cliente = "Roger Haru Baldeon Criollo";
@@ -343,7 +311,6 @@ namespace ApiFacturacion.Controllers
 
         }
 
-       
 private Factura CalcularFactura(Factura factura)
     {
         CultureInfo culture = CultureInfo.InvariantCulture;
@@ -363,7 +330,7 @@ private Factura CalcularFactura(Factura factura)
                 2,
                 MidpointRounding.AwayFromZero
             );
-                det.Cantidad = 
+                //det.Cantidad = 
             totalSinImpuestos += det.PrecioTotalSinImpuesto;
 
             // 2️⃣ Forzar impuestos (NO confiar en el front)
@@ -398,6 +365,7 @@ private Factura CalcularFactura(Factura factura)
         {
             Codigo = IVA_CODIGO,
             CodigoPorcentaje = IVA_CODIGO_PORCENTAJE,
+            DescuentoAdicional = 0m,
             BaseImponible = totalSinImpuestos,
             Valor = totalIva
         }
@@ -581,8 +549,6 @@ private Factura CalcularFactura(Factura factura)
         }
 
 
-
-
         //1809202501070522713000110010010000002021234567816
         [HttpPost("ValidarManualmente", Name = "ValidarManualmente")]
         public async Task<IActionResult> ValidarManualmente(string claveAcceso)
@@ -665,6 +631,69 @@ private Factura CalcularFactura(Factura factura)
         {
             var ok = await _empresaService.EliminarFacturaAsync(id);
             return ok ? NoContent() : NotFound();
+        }
+    }
+
+    public class SriAutorizacionResult {
+        public string Estado { get; set; }
+        public string NumeroAutorizacion { get; set; }
+        public DateTimeOffset? FechaAutorizacion { get; set; }
+        public string Ambiente { get; set; }
+        public string ComprobanteXml { get; set; }
+        public List<SriMensaje> Mensajes { get; set; } = new();
+    }
+
+    public class SriMensaje {
+        public string Identificador { get; set; }
+        public string Mensaje { get; set; }
+        public string InformacionAdicional { get; set; }
+        public string Tipo { get; set; }
+    }
+
+    static class SriSoapParser {
+        public static SriAutorizacionResult ParseAutorizacionSri(string soapXml) {
+            var doc = XDocument.Parse(soapXml);
+
+            // Primer <autorizacion> sin importar namespaces/prefijos
+            var autorizacion = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "autorizacion");
+            if (autorizacion == null) return null;
+
+            string Val(string localName) =>
+                autorizacion.Elements().FirstOrDefault(e => e.Name.LocalName == localName)?.Value?.Trim();
+
+            var result = new SriAutorizacionResult {
+                Estado = Val("estado"),
+                NumeroAutorizacion = Val("numeroAutorizacion"),
+                Ambiente = Val("ambiente")
+            };
+
+            // fechaAutorizacion: 2026-01-12T11:34:52-05:00
+            var fechaTxt = Val("fechaAutorizacion");
+            if (DateTimeOffset.TryParse(fechaTxt, out var dto))
+                result.FechaAutorizacion = dto;
+
+            // El comprobante viene escapado (&lt;...&gt; y &#xD;), lo decodificamos
+            var compEscapado = Val("comprobante");
+            if (!string.IsNullOrWhiteSpace(compEscapado)) {
+                var decoded = WebUtility.HtmlDecode(compEscapado);
+                result.ComprobanteXml = decoded;
+            }
+
+            // Mensajes (cuando NO es autorizado o cuando viene con observaciones)
+            // En algunos casos <mensajes/> viene vacío, así que esto queda en lista vacía
+            var mensajes = autorizacion
+                .Descendants()
+                .Where(x => x.Name.LocalName == "mensaje")
+                .Select(m => new SriMensaje {
+                    Identificador = m.Elements().FirstOrDefault(e => e.Name.LocalName == "identificador")?.Value?.Trim(),
+                    Mensaje = m.Elements().FirstOrDefault(e => e.Name.LocalName == "mensaje")?.Value?.Trim(),
+                    InformacionAdicional = m.Elements().FirstOrDefault(e => e.Name.LocalName == "informacionAdicional")?.Value?.Trim(),
+                    Tipo = m.Elements().FirstOrDefault(e => e.Name.LocalName == "tipo")?.Value?.Trim(),
+                })
+                .ToList();
+
+            result.Mensajes = mensajes;
+            return result;
         }
     }
 
