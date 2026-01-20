@@ -15,5 +15,10 @@ namespace ApiFacturacion.Interface
         Task<bool> EliminarFacturaAsync(int id);
         bool VerficiarTokenExistenteValido(string token);
 
+        Task<(int puntoEmisionId, string serie, string secuencial)> ReservarSecuencialAsync(int idaplicacion, int idempresa, int idpersona);
+        Task<FactFactura?> ObtenerFacturaPorClaveAccesoAsync(string claveAcceso);
+        Task ActualizarXmlEstadoAsync(string claveAcceso, Action<FactFacturaXml> apply);
+
+
     }
 }

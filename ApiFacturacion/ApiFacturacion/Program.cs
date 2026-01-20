@@ -16,6 +16,9 @@ namespace ApiFacturacion
             // Add services to the container.
             builder.Services.AddScoped<IFacturacionService, FacturacionService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            //builder.Services.AddScoped<IReportesService, ReportesService>();
+            builder.Services.AddHttpClient<IReportesService, ReportesService>();
+
             builder.Services.AddControllers().AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;

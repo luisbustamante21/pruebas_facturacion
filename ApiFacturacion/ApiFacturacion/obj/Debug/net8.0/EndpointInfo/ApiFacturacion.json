@@ -1422,14 +1422,6 @@
             "type": "string",
             "nullable": true
           },
-          "descuentoAdicional": {
-            "type": "number",
-            "format": "double"
-          },
-          "descuentoAdicionalXml": {
-            "type": "string",
-            "nullable": true
-          },
           "baseImponible": {
             "type": "number",
             "format": "double"
@@ -1445,6 +1437,10 @@
           "valorXml": {
             "type": "string",
             "nullable": true
+          },
+          "descuentoAdicional": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false

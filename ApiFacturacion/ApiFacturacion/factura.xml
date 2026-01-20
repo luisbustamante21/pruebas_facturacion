@@ -6,39 +6,38 @@
     <razonSocial>Roger Baldeon</razonSocial>
     <nombreComercial>htecnology</nombreComercial>
     <ruc>0705227130001</ruc>
-    <claveAcceso>1201202601070522713000110010010000001201234567817</claveAcceso>
+    <claveAcceso>1301202601070522713000110010010000001741234567816</claveAcceso>
     <codDoc>01</codDoc>
     <estab>001</estab>
     <ptoEmi>001</ptoEmi>
-    <secuencial>000000120</secuencial>
+    <secuencial>000000174</secuencial>
     <dirMatriz>Huaquillas</dirMatriz>
   </infoTributaria>
   <infoFactura>
-    <fechaEmision>12/01/2026</fechaEmision>
+    <fechaEmision>13/01/2026</fechaEmision>
     <dirEstablecimiento>Guayaquil</dirEstablecimiento>
     <obligadoContabilidad>NO</obligadoContabilidad>
     <tipoIdentificacionComprador>05</tipoIdentificacionComprador>
-    <razonSocialComprador>JUANITO ALIMAÑA</razonSocialComprador>
-    <identificacionComprador>0705227130</identificacionComprador>
-    <direccionComprador>Av 24 de Mayo</direccionComprador>
-    <totalSinImpuestos>8.00</totalSinImpuestos>
+    <razonSocialComprador>JUAN CARLOS MORALES ROBLES</razonSocialComprador>
+    <identificacionComprador>1150121943</identificacionComprador>
+    <direccionComprador>Av Loja</direccionComprador>
+    <totalSinImpuestos>25.00</totalSinImpuestos>
     <totalDescuento>0.00</totalDescuento>
     <totalConImpuestos>
       <totalImpuesto>
         <codigo>2</codigo>
         <codigoPorcentaje>4</codigoPorcentaje>
-        <descuentoAdicional>0.00</descuentoAdicional>
-        <baseImponible>8.00</baseImponible>
-        <valor>1.20</valor>
+        <baseImponible>25.00</baseImponible>
+        <valor>3.75</valor>
       </totalImpuesto>
     </totalConImpuestos>
     <propina>0.00</propina>
-    <importeTotal>9.20</importeTotal>
+    <importeTotal>28.75</importeTotal>
     <moneda>DOLAR</moneda>
     <pagos>
       <pago>
         <formaPago>01</formaPago>
-        <total>9.20</total>
+        <total>28.75</total>
         <plazo>0</plazo>
         <unidadTiempo>dias</unidadTiempo>
       </pago>
@@ -46,26 +45,26 @@
   </infoFactura>
   <detalles>
     <detalle>
-      <codigoPrincipal>SER-002</codigoPrincipal>
-      <codigoAuxiliar>SER-002</codigoAuxiliar>
-      <descripcion>Toma y evaluación de signos vitales</descripcion>
+      <codigoPrincipal>SER-001</codigoPrincipal>
+      <codigoAuxiliar>SER-001</codigoAuxiliar>
+      <descripcion>Atención médica ambulatoria</descripcion>
       <cantidad>1.00</cantidad>
-      <precioUnitario>8.00</precioUnitario>
+      <precioUnitario>25.00</precioUnitario>
       <descuento>0.00</descuento>
-      <precioTotalSinImpuesto>8.00</precioTotalSinImpuesto>
+      <precioTotalSinImpuesto>25.00</precioTotalSinImpuesto>
       <impuestos>
         <impuesto>
           <codigo>2</codigo>
           <codigoPorcentaje>4</codigoPorcentaje>
           <tarifa>15.00</tarifa>
-          <baseImponible>8.00</baseImponible>
-          <valor>1.20</valor>
+          <baseImponible>25.00</baseImponible>
+          <valor>3.75</valor>
         </impuesto>
       </impuestos>
     </detalle>
   </detalles>
   <infoAdicional>
-    <campoAdicional nombre="Email">luis.bustamante@gmail.com</campoAdicional>
-    <campoAdicional nombre="Telefono">0909999999</campoAdicional>
+    <campoAdicional nombre="Email">coreeoo@mail.com</campoAdicional>
+    <campoAdicional nombre="Telefono">0987654123</campoAdicional>
   </infoAdicional>
 </factura>

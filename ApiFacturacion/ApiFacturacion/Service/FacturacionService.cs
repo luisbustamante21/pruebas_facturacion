@@ -61,52 +61,6 @@ namespace ApiFacturacion.Service
             return empresa;
         }
 
-        //public async Task<FactEmpresa> ActualizarEmpresaAsync(DTOEmpresaRegistroDto dto)
-        //{
-        //    // 1. Buscar la empresa existente
-        //    var empresa = await context.FactEmpresas
-        //        .Include(e => e.FactEstablecimientos)
-        //            .ThenInclude(es => es.FactPuntoEmisions)
-        //        .FirstOrDefaultAsync(e => e.Ruc == dto.Ruc);
-
-        //    if (empresa == null)
-        //        throw new InvalidOperationException($"No existe una empresa con RUC {dto.Ruc}");
-
-        //    // 2. Actualizar datos principales
-        //    empresa.RazonSocial = dto.RazonSocial;
-        //    empresa.NombreComercial = dto.NombreComercial;
-        //    empresa.DirMatriz = dto.DirMatriz;
-        //    empresa.ObligadoContabilidad = dto.ObligadoContabilidad;
-        //    empresa.ContribuyenteEspecial = dto.ContribuyenteEspecial;
-        //    empresa.RegimenMicroempresa = dto.RegimenMicroempresa;
-        //    empresa.FirmaDigital = dto.FirmaDigital;
-        //    empresa.IdEmpresa = dto.id_empresa;
-        //    empresa.IdAplicacion = dto.id_aplicacion;
-        //    empresa.IdPersona = dto.id_persona;
-        //    empresa.Token = dto.Token;
-        //    empresa.Logo = dto.Logo;
-
-        //    // 3. Eliminar establecimientos actuales
-        //    context.FactEstablecimientos.RemoveRange(empresa.FactEstablecimientos);
-
-        //    // 4. Agregar establecimientos nuevos
-        //    empresa.FactEstablecimientos = dto.Establecimientos.Select(est => new FactEstablecimiento
-        //    {
-        //        Codigo = est.Codigo,
-        //        Direccion = est.Direccion,
-        //        FactPuntoEmisions = est.PuntosEmision.Select(p => new FactPuntoEmision
-        //        {
-        //            Codigo = p.Codigo,
-        //            SecuencialActual = p.Secuencial > 0 ? p.Secuencial: 1
-        //        }).ToList()
-        //    }).ToList();
-
-        //    // 5. Guardar cambios
-        //    await context.SaveChangesAsync();
-
-        //    return empresa;
-        //}
-
         public async Task<FactEmpresa> ActualizarEmpresaAsync(DTOEmpresaRegistroDto dto)
         {
             using var transaction = await context.Database.BeginTransactionAsync();
@@ -217,207 +171,54 @@ namespace ApiFacturacion.Service
             return empresa;
         }
 
-
-        // ============================================================
-        // CREAR FACTURA COMPLETA
-        // ============================================================
-        //public async Task<FactFactura> CrearFacturaAsync(FactFactura factura)
-        //{
-        //    using var transaction = await context.Database.BeginTransactionAsync();
-
-        //    try
-        //    {
-        //        // 1️⃣ Crear la factura principal
-        //        context.FactFacturas.Add(factura);
-        //        await context.SaveChangesAsync();
-
-        //        // 2️⃣ Guardar detalles
-        //        if (factura.FactFacturaDetalles != null)
-        //        {
-        //            foreach (var detalle in factura.FactFacturaDetalles)
-        //            {
-        //                detalle.FacturaId = factura.Idfactfactura;
-        //                //detalle.Idfactfacturadetalle = 0;
-        //                context.FactFacturaDetalles.Add(detalle);
-
-        //                // Guardar impuestos por detalle
-        //                if (detalle.FacturaDetalleImpuestos != null)
-        //                {
-        //                    foreach (var imp in detalle.FacturaDetalleImpuestos)
-        //                    {
-        //                        imp.DetalleId = detalle.Idfactfacturadetalle;
-        //                        imp.Idfacturadetalleimpuesto = 0;
-        //                        context.FacturaDetalleImpuestos.Add(imp);
-        //                    }
-        //                }
-        //            }
-        //        }
-
-        //        // 3️⃣ Guardar totales de impuestos
-        //        if (factura.FactFacturaTotalImpuestos != null)
-        //        {
-        //            foreach (var imp in factura.FactFacturaTotalImpuestos)
-        //            {
-        //                imp.FacturaId = factura.Idfactfactura;
-        //                imp.Idfactfacturatotalimpuesto = 0;
-        //                context.FactFacturaTotalImpuestos.Add(imp);
-        //            }
-        //        }
-
-        //        // 4️⃣ Guardar pagos
-        //        if (factura.FactFacturaPagos != null)
-        //        {
-        //            foreach (var pago in factura.FactFacturaPagos)
-        //            {
-        //                pago.FacturaId = factura.Idfactfactura;
-        //                pago.Idfactfacturapago = 0;
-        //                context.FactFacturaPagos.Add(pago);
-        //            }
-        //        }
-
-        //        // 5️⃣ Guardar información adicional
-        //        if (factura.FactFacturaInfoAdicionals != null)
-        //        {
-        //            foreach (var info in factura.FactFacturaInfoAdicionals)
-        //            {
-        //                info.FacturaId = factura.Idfactfactura;
-        //                info.Idfactfacturainfoadicional = 0;
-        //                context.FactFacturaInfoAdicionals.Add(info);
-        //            }
-        //        }
-
-        //        // 6️⃣ Guardar XML y PDF si existen
-        //        if (factura.FactFacturaXml != null)
-        //        {
-        //            factura.FactFacturaXml.FacturaId = factura.Idfactfactura;
-        //            context.FactFacturaXmls.Add(factura.FactFacturaXml);
-        //        }
-
-        //        if (factura.FactFacturaPdf != null)
-        //        {
-        //            factura.FactFacturaPdf.FacturaId = factura.Idfactfactura;
-        //            context.FactFacturaPdfs.Add(factura.FactFacturaPdf);
-        //        }
-
-        //        var puntoEmision = await context.FactPuntoEmisions
-        //         .FirstAsync(p => p.Idfactpuntoemision == factura.PuntoEmisionId);
-
-        //        puntoEmision.SecuencialActual += 1;
-
-        //        context.FactPuntoEmisions.Update(puntoEmision);
-
-        //        await context.SaveChangesAsync();
-        //        await transaction.CommitAsync();
-
-        //        return factura;
-        //    }
-        //    catch
-        //    {
-        //        await transaction.RollbackAsync();
-        //        throw;
-        //    }
-        //}
-        public async Task<FactFactura> CrearFacturaAsync(FactFactura factura)
-        {
+        public async Task<FactFactura> CrearFacturaAsync(FactFactura factura) {
             using var transaction = await context.Database.BeginTransactionAsync();
 
-            try
-            {
-                // 🚨 IMPORTANTE: Desacoplar tracking previo
+            try {
                 context.ChangeTracker.Clear();
 
-                // 1️⃣ Factura
+                // 1) Insertar factura (cabecera + relaciones si las llevas)
                 context.FactFacturas.Add(factura);
-                await context.SaveChangesAsync(); // aquí se genera IdFactFactura
+                await context.SaveChangesAsync();
 
-                // 2️⃣ Detalles
-                //if (factura.FactFacturaDetalles != null)
-                //{
-                //    foreach (var detalle in factura.FactFacturaDetalles)
-                //    {
-                //        detalle.Idfactfacturadetalle = 0; // opcional
-                //        detalle.FacturaId = factura.Idfactfactura;
+                // 2) Insertar XML (1 a 1)
+                if (factura.FactFacturaXml != null) {
+                    var yaHayXml = await context.FactFacturaXmls
+                        .AnyAsync(x => x.FacturaId == factura.Idfactfactura);
 
-                //        context.FactFacturaDetalles.Add(detalle);
-                //        await context.SaveChangesAsync(); // 🔑 genera ID del detalle
+                    if (!yaHayXml) {
+                        factura.FactFacturaXml.Idfactfacturaxml = 0;
+                        factura.FactFacturaXml.FacturaId = factura.Idfactfactura;
+                        context.FactFacturaXmls.Add(factura.FactFacturaXml);
+                    } else {
+                        var xmlDb = await context.FactFacturaXmls
+                            .FirstAsync(x => x.FacturaId == factura.Idfactfactura);
 
-                //        // 2.1️⃣ Impuestos del detalle
-                //        if (detalle.FacturaDetalleImpuestos != null)
-                //        {
-                //            foreach (var imp in detalle.FacturaDetalleImpuestos)
-                //            {
-                //                imp.Idfacturadetalleimpuesto = 0;
-                //                imp.DetalleId = detalle.Idfactfacturadetalle;
-                //                context.FacturaDetalleImpuestos.Add(imp);
-                //            }
-                //        }
-                //    }
-                //}
-
-                // 3️⃣ Totales de impuestos
-                //if (factura.FactFacturaTotalImpuestos != null)
-                //{
-                //    foreach (var imp in factura.FactFacturaTotalImpuestos)
-                //    {
-                //        imp.Idfactfacturatotalimpuesto = 0;
-                //        imp.FacturaId = factura.Idfactfactura;
-                //        context.FactFacturaTotalImpuestos.Add(imp);
-                //    }
-                //}
-
-                //// 4️⃣ Pagos
-                //if (factura.FactFacturaPagos != null)
-                //{
-                //    foreach (var pago in factura.FactFacturaPagos)
-                //    {
-                //        pago.Idfactfacturapago = 0;
-                //        pago.FacturaId = factura.Idfactfactura;
-                //        context.FactFacturaPagos.Add(pago);
-                //    }
-                //}
-
-                //// 5️⃣ Info adicional
-                //if (factura.FactFacturaInfoAdicionals != null)
-                //{
-                //    foreach (var info in factura.FactFacturaInfoAdicionals)
-                //    {
-                //        info.Idfactfacturainfoadicional = 0;
-                //        info.FacturaId = factura.Idfactfactura;
-                //        context.FactFacturaInfoAdicionals.Add(info);
-                //    }
-                //}
-
-                // 6️⃣ XML / PDF
-                if (factura.FactFacturaXml != null)
-                {
-                    factura.FactFacturaXml.FacturaId = factura.Idfactfactura;
-                    context.FactFacturaXmls.Add(factura.FactFacturaXml);
+                        xmlDb.XmlFirmado = factura.FactFacturaXml.XmlFirmado;
+                        xmlDb.XmlAutorizado = factura.FactFacturaXml.XmlAutorizado;
+                        xmlDb.NumeroAutorizacion = factura.FactFacturaXml.NumeroAutorizacion;
+                        xmlDb.FechaAutorizacion = factura.FactFacturaXml.FechaAutorizacion;
+                        xmlDb.EstadoAutorizacion = factura.FactFacturaXml.EstadoAutorizacion;
+                        xmlDb.MensajeAutorizacion = factura.FactFacturaXml.MensajeAutorizacion;
+                    }
                 }
 
-                if (factura.FactFacturaPdf != null)
-                {
+
+                // 3) PDF si aplica
+                if (factura.FactFacturaPdf != null) {
                     factura.FactFacturaPdf.FacturaId = factura.Idfactfactura;
                     context.FactFacturaPdfs.Add(factura.FactFacturaPdf);
                 }
-
-                // 7️⃣ Incrementar secuencial
-                var puntoEmision = await context.FactPuntoEmisions
-                    .FirstAsync(p => p.Idfactpuntoemision == factura.PuntoEmisionId);
-
-                puntoEmision.SecuencialActual += 1;
 
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return factura;
-            }
-            catch
-            {
+            } catch {
                 await transaction.RollbackAsync();
                 throw;
             }
         }
-
 
         // ============================================================
         // OBTENER FACTURA COMPLETA POR ID
@@ -509,5 +310,73 @@ namespace ApiFacturacion.Service
 
             return retorno;
         }
+
+        public async Task<(int puntoEmisionId, string serie, string secuencial)> ReservarSecuencialAsync(int idaplicacion, int idempresa, int idpersona) {
+            using var tx = await context.Database.BeginTransactionAsync();
+
+            var empresa = await context.FactEmpresas
+                .Include(e => e.FactEstablecimientos)
+                    .ThenInclude(est => est.FactPuntoEmisions)
+                .FirstAsync(e => e.IdAplicacion == idaplicacion && e.IdEmpresa == idempresa && e.IdPersona == idpersona);
+
+            var estab = empresa.FactEstablecimientos.First();
+            var pe = estab.FactPuntoEmisions.First();
+
+            // Reservar: incrementar en DB antes de emitir
+            var siguienteSec = (pe.SecuencialActual ?? 0) + 1;
+            pe.SecuencialActual = siguienteSec;
+
+            await context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            var serie = estab.Codigo + pe.Codigo;
+            var secuencialStr = siguienteSec.ToString().PadLeft(9, '0');
+
+            return (pe.Idfactpuntoemision, serie, secuencialStr);
+        }
+
+        public async Task<FactFactura?> ObtenerFacturaPorClaveAccesoAsync(string claveAcceso) {
+            if (string.IsNullOrWhiteSpace(claveAcceso)) return null;
+
+            return await context.FactFacturas
+                .Include(f => f.FactFacturaDetalles)
+                    .ThenInclude(d => d.FacturaDetalleImpuestos)
+                .Include(f => f.FactFacturaPagos)
+                .Include(f => f.FactFacturaTotalImpuestos)
+                .Include(f => f.FactFacturaInfoAdicionals)
+                .Include(f => f.FactFacturaXml)
+                .Include(f => f.FactFacturaPdf)
+                .FirstOrDefaultAsync(f => f.ClaveAcceso == claveAcceso);
+        }
+
+        public async Task ActualizarXmlEstadoAsync(string claveAcceso, Action<FactFacturaXml> apply) {
+            if (string.IsNullOrWhiteSpace(claveAcceso))
+                throw new ArgumentException("claveAcceso es requerida", nameof(claveAcceso));
+
+            if (apply == null)
+                throw new ArgumentNullException(nameof(apply));
+
+            var factura = await context.FactFacturas
+                .Include(f => f.FactFacturaXml)
+                .FirstOrDefaultAsync(f => f.ClaveAcceso == claveAcceso);
+
+            if (factura == null)
+                throw new InvalidOperationException($"No existe factura con claveAcceso={claveAcceso}");
+
+            if (factura.FactFacturaXml == null) {
+                factura.FactFacturaXml = new FactFacturaXml {
+                    FacturaId = factura.Idfactfactura,
+                    CreadoEn = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified)
+                };
+
+                context.FactFacturaXmls.Add(factura.FactFacturaXml);
+            }
+
+            apply(factura.FactFacturaXml);
+
+            await context.SaveChangesAsync();
+        }
+
+
     }
 }

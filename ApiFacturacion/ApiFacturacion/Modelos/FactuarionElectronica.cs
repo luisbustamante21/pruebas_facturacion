@@ -5,15 +5,13 @@ using System.Xml.Serialization;
 
 namespace ApiFacturacion.Modelos
 {
-    public class ValidarComprobanteRequest
-    {
-        public InfoDelCliente Info { get; set; }
-        public Factura Factura { get; set; }
+    public class ValidarComprobanteRequest {
+        public InfoDelCliente Info { get; set; } = new();
+        public Factura Factura { get; set; } = new();
     }
 
     [XmlRoot("factura")]
-    public class Factura
-    {
+    public class Factura {
         [XmlAttribute("id")]
         public string Id { get; set; } = "comprobante";
 
@@ -21,55 +19,56 @@ namespace ApiFacturacion.Modelos
         public string Version { get; set; } = "1.1.0";
 
         [XmlElement("infoTributaria")]
-        public InfoTributaria InfoTributaria { get; set; }
+        public InfoTributaria InfoTributaria { get; set; } = new();
 
         [XmlElement("infoFactura")]
-        public InfoFactura InfoFactura { get; set; }
+        public InfoFactura InfoFactura { get; set; } = new();
 
         [XmlArray("detalles")]
         [XmlArrayItem("detalle")]
-        public List<Detalle> Detalles { get; set; }
+        public List<Detalle> Detalles { get; set; } = new();
 
         [XmlArray("infoAdicional")]
         [XmlArrayItem("campoAdicional")]
-        public List<CampoAdicional> InfoAdicional { get; set; }
+        public List<CampoAdicional> InfoAdicional { get; set; } = new();
     }
 
-    public class InfoTributaria
-    {
+
+    public class InfoTributaria {
         [XmlElement("ambiente")]
-        public string Ambiente { get; set; }
+        public string? Ambiente { get; set; }
 
         [XmlElement("tipoEmision")]
-        public string TipoEmision { get; set; }
+        public string? TipoEmision { get; set; }
 
         [XmlElement("razonSocial")]
-        public string RazonSocial { get; set; }
+        public string? RazonSocial { get; set; }
 
         [XmlElement("nombreComercial")]
-        public string NombreComercial { get; set; }
+        public string? NombreComercial { get; set; }
 
         [XmlElement("ruc")]
-        public string Ruc { get; set; }
+        public string? Ruc { get; set; }
 
         [XmlElement("claveAcceso")]
-        public string ClaveAcceso { get; set; }
+        public string? ClaveAcceso { get; set; }   // <-- CAMBIO
 
         [XmlElement("codDoc")]
-        public string CodDoc { get; set; }
+        public string? CodDoc { get; set; }
 
         [XmlElement("estab")]
-        public string Estab { get; set; }
+        public string? Estab { get; set; }
 
         [XmlElement("ptoEmi")]
-        public string PtoEmi { get; set; }
+        public string? PtoEmi { get; set; }
 
         [XmlElement("secuencial")]
-        public string Secuencial { get; set; }
+        public string? Secuencial { get; set; }    // <-- CAMBIO
 
         [XmlElement("dirMatriz")]
-        public string DirMatriz { get; set; }
+        public string? DirMatriz { get; set; }
     }
+
 
     public class InfoFactura
     {
@@ -81,6 +80,10 @@ namespace ApiFacturacion.Modelos
 
         [XmlElement("contribuyenteEspecial")]
         public string? ContribuyenteEspecial { get; set; }
+        public bool ShouldSerializeContribuyenteEspecial() {
+            return !string.IsNullOrWhiteSpace(ContribuyenteEspecial);
+        }
+
 
         [XmlElement("obligadoContabilidad")]
         public string ObligadoContabilidad { get; set; }
@@ -149,8 +152,7 @@ namespace ApiFacturacion.Modelos
         public List<Pago> Pagos { get; set; }
     }
 
-    public class TotalImpuesto
-    {
+    public class TotalImpuesto {
         [XmlElement("codigo")]
         public string Codigo { get; set; }
 
@@ -158,21 +160,10 @@ namespace ApiFacturacion.Modelos
         public string CodigoPorcentaje { get; set; }
 
         [XmlIgnore]
-        //public decimal Tarifa { get; set; }
-        public decimal DescuentoAdicional { get; set; }
-
-        [XmlElement("descuentoAdicional")]
-        public string DescuentoAdicionalXml {
-            get => DescuentoAdicional.ToString("0.00", CultureInfo.InvariantCulture);
-            set => DescuentoAdicional = decimal.Parse(value, CultureInfo.InvariantCulture);
-        }
-
-        [XmlIgnore]
         public decimal BaseImponible { get; set; }
 
         [XmlElement("baseImponible")]
-        public string BaseImponibleXml
-        {
+        public string BaseImponibleXml {
             get => BaseImponible.ToString("0.00", CultureInfo.InvariantCulture);
             set => BaseImponible = decimal.Parse(value, CultureInfo.InvariantCulture);
         }
@@ -181,12 +172,16 @@ namespace ApiFacturacion.Modelos
         public decimal Valor { get; set; }
 
         [XmlElement("valor")]
-        public string ValorXml
-        {
+        public string ValorXml {
             get => Valor.ToString("0.00", CultureInfo.InvariantCulture);
             set => Valor = decimal.Parse(value, CultureInfo.InvariantCulture);
         }
+
+        // Si quieres tener DescuentoAdicional para BD, déjalo pero NO lo serialices
+        [XmlIgnore]
+        public decimal DescuentoAdicional { get; set; }
     }
+
 
     public class Pago
     {
@@ -314,20 +309,22 @@ namespace ApiFacturacion.Modelos
         public string Valor { get; set; }
     }
 
-    public class InfoDelCliente
-    {
-        public string FechaEmision { get; set; }
-        public string TipoComprobante { get; set; }
-        public string Ruc { get; set; }
-        public string? TipoAmbiente { get; set; }
-        public string Serie { get; set; }
-        public string Secuencial { get; set; }
-        public string CodigoNumerico { get; set; }
-        public string TipoEmision { get; set; }
-        public string Token { get; set; }
+    public class InfoDelCliente {
+        public string? FechaEmision { get; set; }       // opcional si lo pones tú
+        public string? TipoComprobante { get; set; }    // opcional si lo pones tú
+        public string? Ruc { get; set; }                // tú lo sacas de empresa
+
+        public string? TipoAmbiente { get; set; }       // ok
+        public string? Serie { get; set; }              // tú lo calculas
+        public string? Secuencial { get; set; }         // <-- CAMBIO
+        public string? CodigoNumerico { get; set; }     // tú lo calculas
+        public string? TipoEmision { get; set; }        // tú lo fijas
+
+        public string Token { get; set; } = default!;
         public int Id_aplicacion { get; set; }
         public int Id_empresa { get; set; }
         public int Id_persona { get; set; }
-        public string ContrasenaFirma { get; set; }
+        public string ContrasenaFirma { get; set; } = default!;
     }
+
 }

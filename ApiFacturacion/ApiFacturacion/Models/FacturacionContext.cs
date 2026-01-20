@@ -308,7 +308,8 @@ public partial class FacturacionContext : DbContext
 
             entity.HasIndex(e => e.FacturaId, "FactFacturaXml_factura_id_key").IsUnique();
 
-            entity.Property(e => e.Idfactfacturaxml).HasColumnName("idfactfacturaxml");
+            entity.Property(e => e.Idfactfacturaxml).HasColumnName("idfactfacturaxml")
+                .ValueGeneratedOnAdd(); ;
             entity.Property(e => e.CreadoEn)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")

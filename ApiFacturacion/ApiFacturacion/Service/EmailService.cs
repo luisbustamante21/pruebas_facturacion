@@ -9,28 +9,27 @@ namespace ApiFacturacion.Service
 
 public class EmailService : IEmailService
 {
-    private readonly string _host = "smtp.gmail.com";
-        private readonly int _port = 587;
-        //private readonly int _port = 465;
-        private readonly string _user = "meddev146@gmail.com"; // Tu correo
-    private readonly string _pass = "eysj zlpp vjhn pjis"; // La que generamos en el paso 1
-        public EmailService()
+        private  string _host = string.Empty;
+        private  int _port ;        
+        private  string _user = string.Empty; 
+        private  string _pass = string.Empty;
+        private readonly IConfiguration _configuration;
+        public EmailService(IConfiguration configuration)
         {
-                
+            _configuration = configuration;
+            _host = _configuration["Correo:_host"];
+            _port = Convert.ToInt16( _configuration["Correo:_port"]);
+            _user = _configuration["Correo:_user"];
+            _pass = _configuration["Correo:_pass"];
         }
         public async Task SendEmailAsync(string to, string subject, string body, byte[] pdfBytes, byte[] xmlBytes)
-    {
-            
+        {
             try
             {
                 // 1. Configurar el mensaje
                 MailMessage mensaje = new MailMessage(_user, to,subject, body);
                 mensaje.IsBodyHtml = true; // Permite usar etiquetas HTML
                                            // Forzar el uso de protocolos de seguridad modernos
-
-
-         
-
                 // 3. Crear streams en memoria
                 MemoryStream pdfStream = new MemoryStream(pdfBytes);
                 MemoryStream xmlStream = new MemoryStream(xmlBytes);

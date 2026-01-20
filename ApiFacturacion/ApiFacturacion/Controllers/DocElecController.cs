@@ -1,43 +1,39 @@
-﻿using System.IO;
-using System.Text;
-using ApiFacturacion.Modelos;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml.Serialization;
-using System.Collections.Generic;
-using System.Security.Cryptography.Xml;
-using System.Xml;
-using SRI.Recepcion;
-using ApiFacturacion.utils;
-
-using FirmaXadesNet;
-using FirmaXadesNet.Signature.Parameters;
-using FirmaXadesNet.Crypto;
-using System.Net.Mail;
+﻿using System.Globalization;
 using System.Net;
-using ServiceReference1;
-using ApiFacturacion.Interface;
-using ApiFacturacion.Models;
-using System.Globalization;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Xml.Linq;
+using System.Xml.Serialization;
+using ApiFacturacion.Interface;
+using ApiFacturacion.Modelos;
+using ApiFacturacion.Models;
+using FirmaXadesNet;
+using FirmaXadesNet.Crypto;
+using FirmaXadesNet.Signature.Parameters;
+using Microsoft.AspNetCore.Mvc;
+using SRI.Recepcion;
 
-namespace ApiFacturacion.Controllers
-{
+namespace ApiFacturacion.Controllers {
     [Route("api/[controller]")]
     [ApiController]
-    public class DocElecController : ControllerBase
-    {
+    public class DocElecController : ControllerBase {
         private readonly IFacturacionService _empresaService;
         private readonly IEmailService _emailservice;
+        private readonly IReportesService _reportesService;
+        private readonly IConfiguration _configuration;
 
-        public DocElecController(IFacturacionService facturacionService, IEmailService emailService)
-        {
+        static DateTime AsUnspecified(DateTime dt) => dt.Kind == DateTimeKind.Unspecified ? dt : DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+
+        static DateTime? AsUnspecified(DateTime? dt) => dt.HasValue ? AsUnspecified(dt.Value) : null;
+
+        public DocElecController(IFacturacionService facturacionService, IEmailService emailService, IReportesService reportesService, IConfiguration configuration = null) {
             this._empresaService = facturacionService;
             this._emailservice = emailService;
+            this._reportesService = reportesService;
+            this._configuration = configuration;
         }
-        private static string GenerarClaveAcceso(string clave48)
-        {
+        private static string GenerarClaveAcceso(string clave48) {
             if (clave48.Length != 48)
                 throw new ArgumentException("La clave debe tener 48 dígitos antes de calcular el verificador");
 
@@ -45,8 +41,7 @@ namespace ApiFacturacion.Controllers
             int suma = 0;
 
             // Recorremos de derecha a izquierda
-            for (int i = clave48.Length - 1; i >= 0; i--)
-            {
+            for (int i = clave48.Length - 1; i >= 0; i--) {
                 int digito = int.Parse(clave48[i].ToString());
                 suma += digito * factor;
 
@@ -62,31 +57,16 @@ namespace ApiFacturacion.Controllers
 
             return clave48 + verificador.ToString();
         }
-
-        private static string? SerializarRespuestaRecepcion(respuestaSolicitud? respuesta)
-        {
-            if (respuesta == null)
-            {
-                return null;
-            }
-
-            var serializer = new XmlSerializer(typeof(respuestaSolicitud));
-            using var sw = new StringWriter(CultureInfo.InvariantCulture);
-            serializer.Serialize(sw, respuesta);
-            return sw.ToString();
-        }
         [HttpPost("FirmarXmlXades", Name = "FirmarXmlXades")]
-        public static void FirmarXmlXades(string xmlEntrada, string xmlSalida, byte[] rutaCertificado, string claveCert)
-        {
+        public static void FirmarXmlXades(string xmlEntrada, string xmlSalida, byte[] rutaCertificado, string claveCert) {
             var flags = X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable;
             var cert = new X509Certificate2(rutaCertificado, claveCert, flags);
 
             var xadesService = new XadesService();
 
-            var parametros = new SignatureParameters
-            {
-                SignatureMethod = SignatureMethod.RSAwithSHA1, 
-                DigestMethod = DigestMethod.SHA1,             
+            var parametros = new SignatureParameters {
+                SignatureMethod = SignatureMethod.RSAwithSHA1,
+                DigestMethod = DigestMethod.SHA1,
                 SigningDate = DateTime.UtcNow,
                 SignaturePackaging = SignaturePackaging.ENVELOPED,
                 Signer = new Signer(cert)
@@ -99,13 +79,36 @@ namespace ApiFacturacion.Controllers
             signed.Save(output);
         }
 
-        [HttpPost("enviar", Name = "EnviarComprobante")]
-        public async Task<IActionResult> EnviarComprobanteAsync2(ValidarComprobanteRequest request)
-        {
+        private static byte[] FirmarXmlXadesEnMemoria(string xmlSinFirmar, byte[] certificadoP12, string claveCert) {
+            var flags = X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable;
+            var cert = new X509Certificate2(certificadoP12, claveCert, flags);
 
+            var xadesService = new XadesService();
+            var parametros = new SignatureParameters {
+                SignatureMethod = SignatureMethod.RSAwithSHA1,
+                DigestMethod = DigestMethod.SHA1,
+                SigningDate = DateTime.UtcNow,
+                SignaturePackaging = SignaturePackaging.ENVELOPED,
+                Signer = new Signer(cert)
+            };
+            string xmlAutorizadoo = "";
+            var xmlBytes = Encoding.UTF8.GetBytes(xmlSinFirmar);
+
+            using var input = new MemoryStream(xmlBytes);
+            using var output = new MemoryStream();
+
+            var signed = xadesService.Sign(input, parametros);
+            signed.Save(output);
+
+            return output.ToArray();
+        }
+
+        [HttpPost("enviar", Name = "EnviarComprobante")]
+        public async Task<IActionResult> EnviarComprobanteAsync2(ValidarComprobanteRequest request) {
 
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+            string xmlAutorizadoo = "";
 
             var info = request.Info;
             var factura = request.Factura;
@@ -113,27 +116,38 @@ namespace ApiFacturacion.Controllers
             if (info == null || info.Token == null) return BadRequest("Falta informacion de la empresa");
             if (info.Token == null) return BadRequest("Falta informacion del token");
             if (!_empresaService.VerficiarTokenExistenteValido(info.Token)) return BadRequest("Token invalido");
-            var datosEmpresa = _empresaService.ObtenerEmpresaPorRucAsync(info.Id_aplicacion, info.Id_empresa, info.Id_persona);
-            if (datosEmpresa == null) return BadRequest("Empresa no encontrada");
-            if (!(datosEmpresa.Result.Token == info.Token)) return BadRequest("Token invalido");
 
             #endregion
 
             #region factura
 
-            var datosEmpresaConsulta = datosEmpresa.Result;
+            var datosEmpresaConsulta = await _empresaService.ObtenerEmpresaPorRucAsync(info.Id_aplicacion, info.Id_empresa, info.Id_persona);
+
+            if (datosEmpresaConsulta == null) return BadRequest("Empresa no encontrada");
+            if (datosEmpresaConsulta.Token != info.Token) return BadRequest("Token invalido");
+
             info.Ruc = datosEmpresaConsulta.Ruc;
-            info.TipoComprobante = "01"; //Factura
-            info.Secuencial = datosEmpresaConsulta.FactEstablecimientos.FirstOrDefault().FactPuntoEmisions.FirstOrDefault().SecuencialActual.ToString();
-            info.Secuencial = info.Secuencial.PadLeft(9, '0');
-            info.Serie = datosEmpresaConsulta.FactEstablecimientos.FirstOrDefault().Codigo
-                + datosEmpresaConsulta.FactEstablecimientos.FirstOrDefault().FactPuntoEmisions.FirstOrDefault().Codigo;
-            info.CodigoNumerico = "12345678";
+
+            info.TipoComprobante = "01"; // Factura
+
+            var estab = datosEmpresaConsulta.FactEstablecimientos.FirstOrDefault();
+            var pe = estab?.FactPuntoEmisions?.FirstOrDefault();
+            if (estab == null || pe == null)
+                return BadRequest("No existe establecimiento / punto de emisión configurado.");
+
+            var reserva = await _empresaService.ReservarSecuencialAsync(info.Id_aplicacion, info.Id_empresa, info.Id_persona);
+
+            info.Serie = reserva.serie;
+            info.Secuencial = reserva.secuencial;
+
+            // usa este puntoEmisionId después al mapear
+            var puntoEmisionId = reserva.puntoEmisionId;
+            //info.Serie = estab.Codigo + pe.Codigo;
+            info.CodigoNumerico = RandomNumberGenerator.GetInt32(0, 99999999).ToString("D8");
             info.TipoEmision = "1"; //siempre va 1 emision normal 
             info.TipoAmbiente = "1"; // 1 pruebas  2 produccion , esto traer del json 
             info.FechaEmision = DateTime.Now.ToString("ddMMyyyy"); //esto tambien corregir 
                                                                    // 1. Construir clave de acceso (48 dígitos + dígito verificador módulo 11)
-
             string clave48 = info.FechaEmision +
                              info.TipoComprobante +
                              info.Ruc +
@@ -165,104 +179,71 @@ namespace ApiFacturacion.Controllers
             // 3. Serializar a XML UTF-8 sin BOM
             string xmlString;
             var serializer = new XmlSerializer(typeof(Factura));
-            using (var sw = new Utf8StringWriter())
-            {
+            using (var sw = new Utf8StringWriter()) {
                 serializer.Serialize(sw, factura);
                 xmlString = sw.ToString();
             }
 
-            // Guardar XML sin firmar
-            string archivoXml = "factura.xml";
-            System.IO.File.WriteAllText(archivoXml, xmlString, Encoding.UTF8);
-
-            // 4. Firmar XML (XAdES-BES)
-            string archivoFirmado = "facturaFirmada.xml";
-            FirmarXmlXades(archivoXml, archivoFirmado, datosEmpresaConsulta.FirmaDigital, info.ContrasenaFirma);
-            //FirmarXmlXades(archivoXml, archivoFirmado, datosEmpresaConsulta.FirmaDigital, "Kudo1996@");
-
-            // 5. Enviar a Recepción SRI
-            var recepcionClient = new RecepcionComprobantesOfflineClient(
-                RecepcionComprobantesOfflineClient.EndpointConfiguration.RecepcionComprobantesOfflinePort);
-
-            byte[] xmlBytes = System.IO.File.ReadAllBytes(archivoFirmado);
-
-            var responseRecepcion = await recepcionClient.validarComprobanteAsync(
-                xmlBytes
+            // Firmar en memoria (sin archivos)
+            byte[] xmlFirmadoBytes = FirmarXmlXadesEnMemoria(
+                xmlString,
+                datosEmpresaConsulta.FirmaDigital,
+                info.ContrasenaFirma
             );
 
-            if (responseRecepcion?.RespuestaRecepcionComprobante == null)
-            {
-                return BadRequest(new {
-                    estado = (string?)null,
-                    errores = new[] {
-                        new {
-                            identificador = "RECEPCION_NULA",
-                            mensaje = "RespuestaRecepcionComprobante es null.",
-                            tipo = "ERROR",
-                            informacionAdicional = "Verifica el servicio de recepción y la configuración del endpoint."
-                        }
-                    },
-                    xmlSinFirmar = xmlString,
-                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
-                });
-            }
+            // Enviar a Recepción SRI
+            var recepcionClient = new RecepcionComprobantesOfflineClient(
+                RecepcionComprobantesOfflineClient.EndpointConfiguration.RecepcionComprobantesOfflinePort
+            );
 
-            var estadoRecepcion =
-                 responseRecepcion.RespuestaRecepcionComprobante.estado?.Trim();
+            // 1) Ver URL real del endpoint (esto es CLAVE)
+            var endpointUrl = recepcionClient.Endpoint.Address.Uri.ToString();
 
-            if (string.IsNullOrWhiteSpace(estadoRecepcion))
-            {
-                return BadRequest(new {
-                    estado = estadoRecepcion,
-                    errores = new[] {
-                        new {
-                            identificador = "ESTADO_VACIO",
-                            mensaje = "El estado de recepción llegó vacío o nulo.",
-                            tipo = "ERROR",
-                            informacionAdicional = "Revisa el payload enviado y la respuesta del SRI."
-                        }
-                    },
-                    xmlSinFirmar = xmlString,
-                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
-                });
-            }
+            // 2) Enviar
+            var responseRecepcion = await recepcionClient.validarComprobanteAsync(xmlFirmadoBytes);
+            var rr = responseRecepcion.RespuestaRecepcionComprobante;
 
-            if (!string.Equals(estadoRecepcion, "RECIBIDA", StringComparison.OrdinalIgnoreCase))
-            {
-                var mensajes = responseRecepcion
-                    .RespuestaRecepcionComprobante
-                    .comprobantes?
-                    .FirstOrDefault()?
-                    .mensajes;
+            //var recepUrl = recepcionClient.Endpoint.Address.Uri.ToString();
+            //var soapResp = await PostRecepcionRawAsync(xmlFirmadoBytes, recepUrl);
 
-                var errores = mensajes?
-                    .Select(m => new {
-                        m.identificador,
-                        mensaje = m.mensaje1,
-                        m.tipo,
-                        estadoRecepcion,
-                        m.informacionAdicional
-                    })
-                    .ToList();
+            var estadoRecep = (rr?.estado ?? "").Trim();
 
-                if (errores == null || errores.Count == 0)
-                {
-                    errores = new List<object> {
-                        new {
-                            identificador = "SIN_MENSAJES",
-                            mensaje = "El SRI devolvió DEVUELTA sin detalle de mensajes.",
-                            tipo = "ERROR",
-                            informacionAdicional = "Revisa el XML firmado y la configuración del ambiente/endpoint."
-                        }
-                    };
+            var erroresRecep = rr?.comprobantes?
+                .SelectMany(c => c.mensajes ?? Array.Empty<SRI.Recepcion.mensaje>())
+                .Select(m => new {
+                    identificador = (m.identificador ?? "").Trim(),
+                    tipo = (m.tipo ?? "").Trim(),
+                    mensaje = (m.mensaje1 ?? "").Trim(),
+                    informacionAdicional = (m.informacionAdicional ?? "").Trim()
+                })
+                .Cast<object>()
+                .ToList() ?? new List<object>();
+
+
+            bool esCodigo70 = rr?.comprobantes?
+                .SelectMany(c => c.mensajes ?? Array.Empty<SRI.Recepcion.mensaje>())
+                .Any(m => (m.identificador ?? "").Trim() == "70") == true;
+
+            if (!string.Equals(estadoRecep, "RECIBIDA", StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(estadoRecep, "DEVUELTA", StringComparison.OrdinalIgnoreCase) && esCodigo70) {
+                    // No reenviar. Mantener claveAcceso/secuencial y pasar a consulta de autorizacion.
+                    return Ok(new {
+                        estado = "EN_PROCESO",
+                        claveAcceso = claveAcceso,
+                        recepcionEstado = estadoRecep,
+                        errores = erroresRecep
+                    });
                 }
 
                 return BadRequest(new {
-                    estado = estadoRecepcion,
-                    errores,
-                    respuestaRecepcionXml = SerializarRespuestaRecepcion(responseRecepcion.RespuestaRecepcionComprobante),
-                    xmlSinFirmar = xmlString,
-                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
+                    estado = estadoRecep,
+                    endpointUrl = endpointUrl,
+                    serie = info.Serie,
+                    secuencial = info.Secuencial,
+                    codigoNumerico = info.CodigoNumerico,
+                    claveAcceso = claveAcceso,
+                    errores = erroresRecep,
+                    xmlSinFirmar = xmlString
                 });
             }
 
@@ -283,32 +264,18 @@ namespace ApiFacturacion.Controllers
             using var client = new HttpClient();
             var content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
-            var response = await client.PostAsync(
-                "https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline",
-                content);
-
+            string urlSri = _configuration["Sri:UrlFacturacion"];
+            var response = await client.PostAsync(urlSri, content);
 
             string resultXml = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(resultXml))
-            {
-                return BadRequest(new {
-                    estado = "AUTORIZACION_SIN_RESPUESTA",
-                    errores = new[] {
-                        new {
-                            identificador = "AUTORIZACION_HTTP",
-                            mensaje = "La respuesta de autorización fue vacía o no exitosa.",
-                            tipo = "ERROR",
-                            informacionAdicional = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}"
-                        }
-                    },
-                    xmlSinFirmar = xmlString,
-                    xmlFirmadoBase64 = Convert.ToBase64String(xmlBytes)
-                });
-            }
 
             var sri = SriSoapParser.ParseAutorizacionSri(resultXml);
             if (sri == null)
-                return BadRequest("No existe nodo <autorizacion> en la respuesta del SRI.");
+                return BadRequest(new {
+                    ok = false,
+                    error = "No existe nodo <autorizacion> en la respuesta del SRI.",
+                    traceId = HttpContext.TraceIdentifier
+                });
 
             var estado = sri.Estado;
 
@@ -319,7 +286,7 @@ namespace ApiFacturacion.Controllers
                 var ambiente = sri.Ambiente;
 
                 // si quieres el XML del comprobante ya decodificado:
-                var xmlFacturaAutorizada = sri.ComprobanteXml;
+                xmlAutorizadoo = sri.ComprobanteXml;
 
                 // aquí continúas tu flujo
             } else {
@@ -337,8 +304,7 @@ namespace ApiFacturacion.Controllers
 
             #region Guardar Factura
             try {
-                FactFactura factFactura = new FactFactura
-                {
+                FactFactura factFactura = new FactFactura {
                     ClaveAcceso = factura.InfoTributaria.ClaveAcceso,
                     CodDoc = factura.InfoTributaria.CodDoc,
                     DireccionComprador = factura.InfoFactura.DireccionComprador,
@@ -350,100 +316,137 @@ namespace ApiFacturacion.Controllers
                     IdentificacionComprador = factura.InfoFactura.IdentificacionComprador,
                     Moneda = factura.InfoFactura.Moneda,
                     //Propina = factura.InfoFactura.Propina,
-                    PuntoEmision = new FactPuntoEmision
-                    {
+                    PuntoEmision = new FactPuntoEmision {
                         Codigo = factura.InfoTributaria.PtoEmi,
                         SecuencialActual = Convert.ToInt32(factura.InfoTributaria.Secuencial),
-                        Establecimiento = new FactEstablecimiento
-                        {
+                        Establecimiento = new FactEstablecimiento {
                             Codigo = factura.InfoTributaria.Estab,
                             Direccion = factura.InfoTributaria.DirMatriz
                         }
                     },
-
-
                 };
-                var facturaEntity = MapToFactFactura(request, datosEmpresaConsulta.FactEstablecimientos.FirstOrDefault().FactPuntoEmisions.FirstOrDefault().Idfactpuntoemision);
-                var nueva = await _empresaService.CrearFacturaAsync(facturaEntity);
-                //await _emailservice.SendEmailAsync("roger.baldeonc@gmail.com", "estoy probando", "Hola mundo factura de:");
-                var emailDestino = factura?.InfoAdicional?.FirstOrDefault(x => (x?.Nombre ?? "").Trim().Equals("Email", StringComparison.OrdinalIgnoreCase))?.Valor?.Trim();
-                emailDestino = "luis.bustamante141@gmail.com";
-                if (!string.IsNullOrWhiteSpace(emailDestino))
-                {
-                    string cliente = "Roger Haru Baldeon Criollo";
-                    string asunto = $"👋 Hola {cliente}, te enviamos tu FACTURA";
 
-                    //string mensaje = "Tu factura ya está disponible\r\nHola, BALDEON CRIOLLO ROGER HARU\r\n\r\nTe adjuntamos tu factura, autorizado por el SRI.";
-                    string mensaje = ConstruirMensajeHTML(cliente);
+                var facturaEntity = MapToFactFactura(request, puntoEmisionId);
+                var xmlFirmadoString = Encoding.UTF8.GetString(xmlFirmadoBytes);
 
-                    await _emailservice.SendEmailAsync(emailDestino, asunto, mensaje, xmlBytes, xmlBytes);
+                facturaEntity.FactFacturaXml.XmlFirmado = xmlFirmadoString;      // firmado
+                facturaEntity.FactFacturaXml.XmlAutorizado = xmlAutorizadoo;     // autorizado
+                facturaEntity.FactFacturaXml.NumeroAutorizacion = sri.NumeroAutorizacion;
+                facturaEntity.FactFacturaXml.FechaAutorizacion = sri.FechaAutorizacion.HasValue ? AsUnspecified(sri.FechaAutorizacion.Value.DateTime) : (DateTime?)null;
+
+                facturaEntity.FactFacturaXml.EstadoAutorizacion = sri.Estado;
+
+                // --- IDEMPOTENCIA: si ya existe por claveAcceso, NO vuelvas a insertar XML ---
+                var existente = await _empresaService.ObtenerFacturaPorClaveAccesoAsync(facturaEntity.ClaveAcceso);
+
+                if (existente != null) {
+                    // Si ya existe, solo actualiza/crea el XML 1 a 1 (sin insertar otra fila)
+                    await _empresaService.ActualizarXmlEstadoAsync(facturaEntity.ClaveAcceso, xml => {
+                        xml.XmlFirmado = facturaEntity.FactFacturaXml.XmlFirmado;
+                        xml.XmlAutorizado = facturaEntity.FactFacturaXml.XmlAutorizado;
+                        xml.NumeroAutorizacion = facturaEntity.FactFacturaXml.NumeroAutorizacion;
+                        xml.FechaAutorizacion = facturaEntity.FactFacturaXml.FechaAutorizacion;
+                        xml.EstadoAutorizacion = facturaEntity.FactFacturaXml.EstadoAutorizacion;
+                        xml.MensajeAutorizacion = facturaEntity.FactFacturaXml.MensajeAutorizacion;
+                    });
+
+                    try {
+                        await EnviarCorreoFacturaAsync(request, facturaEntity.ClaveAcceso, xmlAutorizadoo);
+                    } catch (Exception) {
+
+                    }
+
+                    var recargada = await _empresaService.ObtenerFacturaPorClaveAccesoAsync(facturaEntity.ClaveAcceso);
+                    return Ok(recargada);
                 }
 
-                //return CreatedAtAction(nameof(GetById), nueva);
+                // Si NO existe, crea normal
+                var nueva = await _empresaService.CrearFacturaAsync(facturaEntity);
+                // >>> AQUI ENVIAR CORREO <<<
+                try {
+                    await EnviarCorreoFacturaAsync(request, facturaEntity.ClaveAcceso, xmlAutorizadoo);
+                } catch (Exception) {
+
+                }
                 return Ok(nueva);
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex.Message);
+
+            } catch (Exception ex) {
+                return StatusCode(500, new {
+                    message = "Error al guardar factura",
+                    detail = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
             }
 
             #endregion
-
-
             return BadRequest("Error");
 
         }
 
-private Factura CalcularFactura(Factura factura)
-    {
-        CultureInfo culture = CultureInfo.InvariantCulture;
+        private async Task<string> PostRecepcionRawAsync(byte[] xmlFirmadoBytes, string recepcionUrl) {
+            var xmlB64 = Convert.ToBase64String(xmlFirmadoBytes);
 
-        const decimal IVA_TARIFA = 15m;
-        const string IVA_CODIGO = "2";
-        const string IVA_CODIGO_PORCENTAJE = "4";
+            var soap = $@"<?xml version=""1.0"" encoding=""UTF-8""?>
+            <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/""
+                              xmlns:ec=""http://ec.gob.sri.ws.recepcion"">
+              <soapenv:Header/>
+              <soapenv:Body>
+                <ec:validarComprobante>
+                  <xml>{xmlB64}</xml>
+                </ec:validarComprobante>
+              </soapenv:Body>
+            </soapenv:Envelope>";
 
-        decimal totalSinImpuestos = 0m;
-        decimal totalIva = 0m;
+            using var http = new HttpClient();
+            var content = new StringContent(soap, Encoding.UTF8, "text/xml");
 
-        foreach (var det in factura.Detalles)
-        {
-            // 1️⃣ Precio total sin impuesto
-            det.PrecioTotalSinImpuesto = Math.Round(
-                (det.Cantidad * det.PrecioUnitario) - det.Descuento,
-                2,
-                MidpointRounding.AwayFromZero
-            );
+            // NO poner SOAPAction
+            var resp = await http.PostAsync(recepcionUrl, content);
+            return await resp.Content.ReadAsStringAsync();
+        }
+
+
+
+        private Factura CalcularFactura(Factura factura) {
+            CultureInfo culture = CultureInfo.InvariantCulture;
+
+            const decimal IVA_TARIFA = 15m;
+            const string IVA_CODIGO = "2";
+            const string IVA_CODIGO_PORCENTAJE = "4";
+
+            decimal totalSinImpuestos = 0m;
+            decimal totalIva = 0m;
+
+            foreach (var det in factura.Detalles) {
+                // 1️⃣ Precio total sin impuesto
+                det.PrecioTotalSinImpuesto = Math.Round((det.Cantidad * det.PrecioUnitario) - det.Descuento, 2, MidpointRounding.AwayFromZero);
                 //det.Cantidad = 
-            totalSinImpuestos += det.PrecioTotalSinImpuesto;
+                totalSinImpuestos += det.PrecioTotalSinImpuesto;
 
-            // 2️⃣ Forzar impuestos (NO confiar en el front)
-            det.Impuestos = new List<ImpuestoDetalle>
-        {
+                // 2️⃣ Forzar impuestos (NO confiar en el front)
+                det.Impuestos = new List<ImpuestoDetalle>
+            {
             new ImpuestoDetalle
             {
                 Codigo = IVA_CODIGO,
                 CodigoPorcentaje = IVA_CODIGO_PORCENTAJE,
                 Tarifa = IVA_TARIFA,
                 BaseImponible = det.PrecioTotalSinImpuesto,
-                Valor = Math.Round(
-                    det.PrecioTotalSinImpuesto * IVA_TARIFA / 100m,
-                    2,
-                    MidpointRounding.AwayFromZero
-                )
+                Valor = Math.Round(det.PrecioTotalSinImpuesto * IVA_TARIFA / 100m, 2, MidpointRounding.AwayFromZero)
             }
         };
 
-            totalIva += (det.Impuestos[0].Valor);
-        }
+                totalIva += (det.Impuestos[0].Valor);
+            }
 
-        // 3️⃣ InfoFactura
-        factura.InfoFactura.TotalSinImpuestos = totalSinImpuestos;
-        factura.InfoFactura.TotalDescuento = 0;
-        factura.InfoFactura.Propina = 0;
+            // 3️⃣ InfoFactura
+            factura.InfoFactura.TotalSinImpuestos = totalSinImpuestos;
+            factura.InfoFactura.TotalDescuento = 0;
+            factura.InfoFactura.Propina = 0;
 
-        // 4️⃣ TotalConImpuestos
-        factura.InfoFactura.TotalConImpuestos = new List<TotalImpuesto>
-    {
+            // 4️⃣ TotalConImpuestos
+            factura.InfoFactura.TotalConImpuestos = new List<TotalImpuesto>
+        {
         new TotalImpuesto
         {
             Codigo = IVA_CODIGO,
@@ -454,24 +457,22 @@ private Factura CalcularFactura(Factura factura)
         }
     };
 
-        // 5️⃣ Importe total
-        decimal importeTotal = totalSinImpuestos + totalIva;
-        factura.InfoFactura.ImporteTotal = importeTotal;
+            // 5️⃣ Importe total
+            decimal importeTotal = totalSinImpuestos + totalIva;
+            factura.InfoFactura.ImporteTotal = importeTotal;
 
-        // 6️⃣ Pagos
-        foreach (var pago in factura.InfoFactura.Pagos)
-        {
-            pago.Total = factura.InfoFactura.ImporteTotal;
-            pago.Plazo = "0";
-            pago.UnidadTiempo = "dias";
+            // 6️⃣ Pagos
+            foreach (var pago in factura.InfoFactura.Pagos) {
+                pago.Total = factura.InfoFactura.ImporteTotal;
+                pago.Plazo = "0";
+                pago.UnidadTiempo = "dias";
+            }
+
+            return factura;
         }
 
-        return factura;
-    }
-
-    private string ConstruirMensajeHTML(string nombreCliente)
-        {
-             string mensaje = $@"
+        private string ConstruirMensajeHTML(string nombreCliente) {
+            string mensaje = $@"
                     <!DOCTYPE html>
                     <html>
                     <head>
@@ -522,37 +523,90 @@ private Factura CalcularFactura(Factura factura)
             return mensaje;
         }
 
-        private FactFactura MapToFactFactura(ValidarComprobanteRequest request, int puntoEmisionId)
-        {
+        private string ObtenerEmailCliente(ValidarComprobanteRequest request) {
+            // Busca en infoAdicional un campo "email" o "correo"
+            return request?.Factura?.InfoAdicional?
+                .FirstOrDefault(x =>
+                    (x?.Nombre ?? "").Trim().Equals("email", StringComparison.OrdinalIgnoreCase) ||
+                    (x?.Nombre ?? "").Trim().Equals("correo", StringComparison.OrdinalIgnoreCase)
+                )?.Valor?.Trim();
+        }
+
+        private async Task EnviarCorreoFacturaAsync(
+            ValidarComprobanteRequest request,
+            string claveAcceso,
+            string xmlAutorizado
+        ) {
+            var emailCliente = ObtenerEmailCliente(request);
+            if (string.IsNullOrWhiteSpace(emailCliente))
+                return; // no hay correo, no envía
+
+            var subject = $"Factura electrónica {claveAcceso}";
+            var body = ConstruirMensajeHTML(request.Factura.InfoFactura.RazonSocialComprador);
+
+            // XML autorizado (bytes)
+            var xmlBytes = Encoding.UTF8.GetBytes(xmlAutorizado ?? "");
+
+            // PDF (ajusta a TU método real)
+            // Si no tienes método todavía, deja pdfBytes = null (pero tu IEmailService debe aceptarlo)
+            byte[] pdfBytes = await _reportesService.GenerarPdfFacturaAsync(claveAcceso);
+
+            await _emailservice.SendEmailAsync(emailCliente, subject, body, pdfBytes, xmlBytes);
+        }
+
+
+        private static string GetStringProp(object obj, params string[] propNames) {
+            if (obj == null) return "";
+            var t = obj.GetType();
+
+            foreach (var name in propNames) {
+                var p = t.GetProperty(name);
+                if (p == null) continue;
+
+                var val = p.GetValue(obj) as string;
+                if (!string.IsNullOrWhiteSpace(val))
+                    return val.Trim();
+            }
+
+            return "";
+        }
+
+
+        private FactFactura MapToFactFactura(ValidarComprobanteRequest request, int puntoEmisionId) {
             var facturaXml = request.Factura;
             var infoTrib = facturaXml.InfoTributaria;
             var infoFac = facturaXml.InfoFactura;
 
-            var factura = new FactFactura
-            {
+            var factura = new FactFactura {
                 PuntoEmisionId = puntoEmisionId,
 
                 FacturaId = facturaXml.Id,
                 Version = facturaXml.Version,
 
-                // infoTributaria
                 TipoEmision = infoTrib.TipoEmision,
                 ClaveAcceso = infoTrib.ClaveAcceso,
                 CodDoc = infoTrib.CodDoc,
                 Secuencial = infoTrib.Secuencial,
+                Ambiente = int.TryParse(infoTrib.Ambiente, out var amb) ? amb : (int?)null,
 
-                // infoFactura
                 FechaEmision = ToDateOnly(infoFac.FechaEmision),
                 RazonSocialComprador = infoFac.RazonSocialComprador,
                 TipoIdentificacionComprador = infoFac.TipoIdentificacionComprador,
                 IdentificacionComprador = infoFac.IdentificacionComprador,
                 DireccionComprador = infoFac.DireccionComprador,
 
-                TotalSinImpuestos = (infoFac.TotalSinImpuestos),
-                TotalDescuento = (infoFac.TotalDescuento),
-                Propina = (infoFac.Propina),
-                ImporteTotal = (infoFac.ImporteTotal),
-                Moneda = infoFac.Moneda
+                TotalSinImpuestos = infoFac.TotalSinImpuestos,
+                TotalDescuento = infoFac.TotalDescuento,
+                Propina = infoFac.Propina,
+                ImporteTotal = infoFac.ImporteTotal,
+                Moneda = infoFac.Moneda,
+
+                FactFacturaXml = new FactFacturaXml {
+                    CreadoEn = AsUnspecified(DateTime.Now)
+                    // o si quieres hora local:
+                    // CreadoEn = AsUnspecified(DateTime.Now)
+                }
+
             };
 
             factura.FactFacturaDetalles = MapDetalles(facturaXml.Detalles);
@@ -563,29 +617,26 @@ private Factura CalcularFactura(Factura factura)
             return factura;
         }
 
+
         static decimal ToDecimal(string value)
     => decimal.Parse(value, CultureInfo.InvariantCulture);
 
         static DateOnly ToDateOnly(string value)
             => DateOnly.ParseExact(value, "d/M/yyyy", CultureInfo.InvariantCulture);
 
-        private List<FactFacturaInfoAdicional> MapInfoAdicional(List<CampoAdicional> info)
-        {
+        private List<FactFacturaInfoAdicional> MapInfoAdicional(List<CampoAdicional> info) {
             if (info == null) return new();
 
-            return info.Select(i => new FactFacturaInfoAdicional
-            {
+            return info.Select(i => new FactFacturaInfoAdicional {
                 Nombre = i.Nombre,
                 Valor = i.Valor
             }).ToList();
         }
 
-        private List<FactFacturaPago> MapPagos(List<Pago> pagos)
-        {
+        private List<FactFacturaPago> MapPagos(List<Pago> pagos) {
             if (pagos == null) return new();
 
-            return pagos.Select(p => new FactFacturaPago
-            {
+            return pagos.Select(p => new FactFacturaPago {
                 FormaPago = p.FormaPago,
                 Total = (p.Total),
                 Plazo = int.Parse(p.Plazo),
@@ -593,25 +644,21 @@ private Factura CalcularFactura(Factura factura)
             }).ToList();
         }
 
-        private List<FactFacturaTotalImpuesto> MapTotalesImpuestos(List<TotalImpuesto> impuestos)
-        {
+        private List<FactFacturaTotalImpuesto> MapTotalesImpuestos(List<TotalImpuesto> impuestos) {
             if (impuestos == null) return new();
 
-            return impuestos.Select(i => new FactFacturaTotalImpuesto
-            {
+            return impuestos.Select(i => new FactFacturaTotalImpuesto {
                 Codigo = i.Codigo,
                 CodigoPorcentaje = i.CodigoPorcentaje,
-                DescuentoAdicional =0,
+                DescuentoAdicional = 0,
                 BaseImponible = (i.BaseImponible),
                 Valor = (i.Valor)
             }).ToList();
         }
-        private List<FactFacturaDetalle> MapDetalles(List<Detalle> detalles)
-        {
+        private List<FactFacturaDetalle> MapDetalles(List<Detalle> detalles) {
             if (detalles == null) return new();
 
-            return detalles.Select(d => new FactFacturaDetalle
-            {
+            return detalles.Select(d => new FactFacturaDetalle {
                 CodigoPrincipal = d.CodigoPrincipal,
                 CodigoAuxiliar = d.CodigoAuxiliar,
                 Descripcion = d.Descripcion,
@@ -620,8 +667,7 @@ private Factura CalcularFactura(Factura factura)
                 Descuento = d.Descuento,
                 PrecioTotalSinImpuesto = d.PrecioTotalSinImpuesto,
 
-                FacturaDetalleImpuestos = d.Impuestos?.Select(i => new FacturaDetalleImpuesto
-                {
+                FacturaDetalleImpuestos = d.Impuestos?.Select(i => new FacturaDetalleImpuesto {
                     Codigo = i.Codigo,
                     CodigoPorcentaje = i.CodigoPorcentaje,
                     Tarifa = (i.Tarifa),
@@ -631,12 +677,8 @@ private Factura CalcularFactura(Factura factura)
             }).ToList();
         }
 
-
-        //1809202501070522713000110010010000002021234567816
         [HttpPost("ValidarManualmente", Name = "ValidarManualmente")]
-        public async Task<IActionResult> ValidarManualmente(string claveAcceso)
-        {
-
+        public async Task<IActionResult> ValidarManualmente(string claveAcceso) {
 
             string soapRequest = $@"<?xml version=""1.0"" encoding=""UTF-8""?>
                 <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:ec=""http://ec.gob.sri.ws.autorizacion"">
@@ -661,62 +703,52 @@ private Factura CalcularFactura(Factura factura)
             return Content(resultXml, "application/xml");
         }
         [HttpPost("registrar")]
-        public async Task<IActionResult> RegistrarEmpresa([FromBody] DTOEmpresaRegistroDto dto)
-        {
+        public async Task<IActionResult> RegistrarEmpresa([FromBody] DTOEmpresaRegistroDto dto) {
             var empresa = await _empresaService.RegistrarEmpresaAsync(dto);
             return Ok(empresa);
         }
         [HttpPost("actualizarEmpresa")]
-        public async Task<IActionResult> actualizarEmpresa([FromBody] DTOEmpresaRegistroDto dto)
-        {
+        public async Task<IActionResult> actualizarEmpresa([FromBody] DTOEmpresaRegistroDto dto) {
             var empresa = await _empresaService.ActualizarEmpresaAsync(dto);
             return Ok(empresa);
         }
         [HttpPost("ObtenerEmpresa")]
-        public async Task<IActionResult> ObtenerEmpresaPorRucAsync(int idaplicacion, int idempresa, int idPersona)
-        {
+        public async Task<IActionResult> ObtenerEmpresaPorRucAsync(int idaplicacion, int idempresa, int idPersona) {
             var empresa = await _empresaService.ObtenerEmpresaPorRucAsync(idaplicacion, idempresa, idPersona);
-            if (empresa == null)
-            {
+            if (empresa == null) {
                 return Ok("");
             }
             return Ok(empresa);
         }
 
-
         [HttpGet("ListarFacturas")]
         public async Task<IActionResult> GetAll() => Ok(await _empresaService.ListarFacturasAsync());
 
         [HttpGet("FacturasById {id}")]
-        public async Task<IActionResult> GetById(string id)
-        {
+        public async Task<IActionResult> GetById(string id) {
             var factura = await _empresaService.ObtenerFacturaPorIdAsync(id);
             return factura != null ? Ok(factura) : NotFound();
         }
 
         [HttpPost("RegistrarFactura")]
-        public async Task<IActionResult> Create([FromBody] FactFactura factura)
-        {
+        public async Task<IActionResult> Create([FromBody] FactFactura factura) {
             var nueva = await _empresaService.CrearFacturaAsync(factura);
             return CreatedAtAction(nameof(GetById), nueva);
         }
 
         [HttpPut("Update{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] FactFactura factura)
-        {
+        public async Task<IActionResult> Update(int id, [FromBody] FactFactura factura) {
 
             var ok = await _empresaService.ActualizarFacturaAsync(factura);
             return ok ? NoContent() : NotFound();
         }
 
         [HttpDelete("Delete{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
+        public async Task<IActionResult> Delete(int id) {
             var ok = await _empresaService.EliminarFacturaAsync(id);
             return ok ? NoContent() : NotFound();
         }
     }
-
     public class SriAutorizacionResult {
         public string Estado { get; set; }
         public string NumeroAutorizacion { get; set; }
@@ -732,7 +764,6 @@ private Factura CalcularFactura(Factura factura)
         public string InformacionAdicional { get; set; }
         public string Tipo { get; set; }
     }
-
     static class SriSoapParser {
         public static SriAutorizacionResult ParseAutorizacionSri(string soapXml) {
             var doc = XDocument.Parse(soapXml);
@@ -741,8 +772,7 @@ private Factura CalcularFactura(Factura factura)
             var autorizacion = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "autorizacion");
             if (autorizacion == null) return null;
 
-            string Val(string localName) =>
-                autorizacion.Elements().FirstOrDefault(e => e.Name.LocalName == localName)?.Value?.Trim();
+            string Val(string localName) => autorizacion.Elements().FirstOrDefault(e => e.Name.LocalName == localName)?.Value?.Trim();
 
             var result = new SriAutorizacionResult {
                 Estado = Val("estado"),
@@ -780,8 +810,64 @@ private Factura CalcularFactura(Factura factura)
         }
     }
 
+    static class SriRecepcionSoapParser {
+        public static SriRecepcionResult ParseRecepcion(string soapXml) {
+            if (string.IsNullOrWhiteSpace(soapXml)) return null;
+
+            var doc = XDocument.Parse(soapXml);
+
+            // Estado: <RespuestaRecepcionComprobante><estado>DEVUELTA</estado>
+            var estado = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "RespuestaRecepcionComprobante")
+                            ?.Elements().FirstOrDefault(x => x.Name.LocalName == "estado")
+                            ?.Value?.Trim();
+
+            var result = new SriRecepcionResult {
+                Estado = estado
+            };
+
+            // Cada <comprobante> dentro de <comprobantes>
+            var comprobantes = doc.Descendants()
+                .Where(x => x.Name.LocalName == "comprobante")
+                .Select(c => {
+                    string Val(string ln) => c.Elements().FirstOrDefault(e => e.Name.LocalName == ln)?.Value?.Trim();
+
+                    var comp = new SriRecepcionComprobante {
+                        ClaveAcceso = Val("claveAcceso")
+                    };
+
+                    var mensajes = c.Descendants()
+                        .Where(x => x.Name.LocalName == "mensaje")
+                        .Select(m => new SriMensaje {
+                            Identificador = m.Elements().FirstOrDefault(e => e.Name.LocalName == "identificador")?.Value?.Trim(),
+                            Mensaje = m.Elements().FirstOrDefault(e => e.Name.LocalName == "mensaje")?.Value?.Trim(),
+                            InformacionAdicional = m.Elements().FirstOrDefault(e => e.Name.LocalName == "informacionAdicional")?.Value?.Trim(),
+                            Tipo = m.Elements().FirstOrDefault(e => e.Name.LocalName == "tipo")?.Value?.Trim(),
+                        })
+                        .ToList();
+
+                    comp.Mensajes = mensajes;
+                    return comp;
+                })
+                .ToList();
+
+            result.Comprobantes = comprobantes;
+            return result;
+        }
+    }
+
+
+    public class SriRecepcionResult {
+        public string Estado { get; set; }
+        public List<SriRecepcionComprobante> Comprobantes { get; set; } = new();
+    }
+
+    public class SriRecepcionComprobante {
+        public string ClaveAcceso { get; set; }
+        public List<SriMensaje> Mensajes { get; set; } = new();
+    }
+
+
 }
-public class Utf8StringWriter : StringWriter
-{
+public class Utf8StringWriter : StringWriter {
     public override Encoding Encoding => Encoding.UTF8;
 }
